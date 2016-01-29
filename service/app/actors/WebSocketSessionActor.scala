@@ -16,11 +16,11 @@ class WebSocketSessionActor(out: ActorRef) extends Actor {
     (__ \ "password").read[String]
   )(Login.apply _)
 
-  implicit val messageReads: Reads[ChatMessage] = (
+  implicit val messageReads: Reads[PostMessage] = (
     (__ \ "channelId").read[String] and
       (__ \ "sender").read[String] and
       (__ \ "message").read[String]
-    )(ChatMessage.apply _)
+    )(PostMessage.apply _)
 
   private def processMessage(msg: JsObject): Unit = {
     def withBody[A](success: A => Unit) {
@@ -42,7 +42,7 @@ class WebSocketSessionActor(out: ActorRef) extends Actor {
       case "channels" =>
         out ! SubscribeChannels
       case "postMessage" => {
-        withBody[ChatMessage] {
+        withBody[PostMessage] {
           ChannelsActor.channelsActor ! _
         }
       }

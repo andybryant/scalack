@@ -5,8 +5,12 @@ import play.api.Play
 import play.libs.Akka
 
 class UserActor extends Actor {
+
+  var sessions: Set[ActorRef] = Set.empty
+
   override def receive = {
-    case
+    case Login(id, _) =>
+      sessions += sender()
   }
 }
 
@@ -18,7 +22,6 @@ class UsersActor extends Actor {
 
   private def login(user: Login): Unit = {
     this.user = Option.apply(user)
-    Play.application.configuration.getStringList("default.stocks");
   }
 
 
