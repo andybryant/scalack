@@ -33,6 +33,7 @@ class ChannelsActor extends Actor {
       val id: String = nextId.toString
       nextId += 1
       channelsById += (id -> PublicChannel(id, channel))
+      // TODO add children here
     }
   }
 
@@ -64,7 +65,9 @@ sealed trait Channel {
 case class PublicChannel(channelId: String, name: String) extends Channel
 case class PrivateChannel(channelId: String, exclusiveUserIds: Set[String]) extends Channel
 
+
 case object SubscribeChannels
+case class CreatePrivateChannel(exclusiveUserIds: Set[String])
 case class SubscribeChannel(channel: Channel)
 case class ChatMessage(channelId: String, sender: String,
                        message: String, timestamp: Long = System.currentTimeMillis())

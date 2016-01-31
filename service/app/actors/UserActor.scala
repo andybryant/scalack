@@ -1,25 +1,51 @@
 package actors
 
-import akka.actor.{Terminated, Actor, ActorRef, Props}
+import akka.actor._
 import play.libs.Akka
 
 
-class UserActor(userId: String) extends Actor {
+class UserActor(userId: String) extends FSM[UserState, UserData] with Stash {
 
-  var sessions: Set[ActorRef] = Set.empty
+  startWith(Initial, Uninitialized)
 
-  // TODO on creation subscribe to all public channels and private channels for all other uers
+  
+  when(Initial) {
+    case Event(Login(_, _), Uninitialized) =>
+      stash
+      goto(Active) using ActiveData(Set.empty, Seq.empty)
+      
+  }
+
+  when (Active) {
+    case Event(Login(_,_), data @ ActiveData(sessions, _)) =>
+      context.watch(sender())
+      stay using data.copy(sessions = sessions + sender())
+    case Event(Channels(channels), ActiveData(_, _)) =>
+      channels.foreach {
+        case channel@PublicChannel(_, _) =>
+          ChannelsActor.channelsActor ! SubscribeChannel(channel)
+        case channel@PrivateChannel(_, users) =>
+          if (users contains userId)
+            ChannelsActor.channelsActor ! SubscribeChannel(channel)
+      }
+      stay
+    case Event(Terminated(ref), data @ ActiveData(sessions, _)) =>
+      stay using data.copy(sessions = sessions - ref)
+    case Event(msg @ ChatMessage(_, _, _, _), ActiveData(sessions, _)) =>
+      sessions.foreach(_ ! msg)
+      stay
+  }
+  
+  onTransition {
+    case Initial -> Active =>
+      ChannelsActor.channelsActor ! SubscribeChannels
+      unstashAll
+  }
+
+  initialize()
+
   // TODO listen on new users and subscribe to private channel for them
 
-  override def receive = {
-    case Login(id, _) =>
-      sessions += sender()
-      context.watch(sender())
-    case Terminated(session) =>
-      sessions -= session
-    case msg @ ChatMessage(_, _, _, _) =>
-      sessions.foreach(_ ! msg)
-  }
 }
 
 object UsersActor {
@@ -27,20 +53,28 @@ object UsersActor {
 }
 
 class UsersActor extends Actor {
-  var users: Set[ActorRef] = Set.empty
+  var users: Set[String] = Set.empty
 
   override def receive = {
-    case message @ Login(id, _) =>
-      context.child(id).getOrElse{
-        val child = context.actorOf(Props(new UserActor(id)), id)
-        users += child
-        context.watch(child)
+    case message @ Login(name, _) =>
+      context.child(name).getOrElse{
+        val child = context.actorOf(Props(new UserActor(name)), name)
+        users.foreach {
+          user => ChannelsActor.channelsActor ! CreatePrivateChannel(Set(name, user))
+        }
+        users += name
         child
       } forward message
-    case Terminated(user) =>
-      users -= user
   }
 }
+
+sealed trait UserState
+case object Initial extends UserState
+case object Active extends UserState
+
+sealed trait UserData
+case object Uninitialized extends UserData
+case class ActiveData(sessions: Set[ActorRef], channels: Seq[Channel]) extends UserData
 
 case class Login(user: String, password: String)
 case object LoginSuccessful
