@@ -1,9 +1,9 @@
 package controllers
 
-import actors.WebSocketSessionActor$
-import play.api.mvc._
-import play.api.libs.json._
+import actors.WebSocketSessionActor
 import play.api.Play.current
+import play.api.libs.json._
+import play.api.mvc._
 
 class Application {
 

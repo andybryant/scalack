@@ -1,6 +1,7 @@
 package actors
 
 import akka.actor._
+import akka.event.Logging
 import play.libs.Akka
 
 
@@ -53,11 +54,13 @@ object UsersActor {
 }
 
 class UsersActor extends Actor {
+  val log = Logging(context.system, this)
   var users: Set[String] = Set.empty
 
   override def receive = {
     case message @ Login(name, _) =>
       context.child(name).getOrElse{
+        log.info("Adding new user {}", name)
         val child = context.actorOf(Props(new UserActor(name)), name)
         users.foreach {
           user => ChannelsActor.channelsActor ! CreatePrivateChannel(Set(name, user))

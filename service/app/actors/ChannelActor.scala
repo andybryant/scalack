@@ -2,7 +2,9 @@ package actors
 
 import akka.actor.{Actor, ActorRef, Props, Terminated}
 import play.api.Play
+import play.api.Play.current
 import play.libs.Akka
+import akka.event.Logging
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.{HashSet, Queue}
@@ -22,6 +24,7 @@ object ChannelsActor {
 }
 
 class ChannelsActor extends Actor {
+  val log = Logging(context.system, this)
   var nextId: Long = 1L
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
   var channelsById: Map[String, Channel] = Map.empty
@@ -29,11 +32,13 @@ class ChannelsActor extends Actor {
   {
     val defaultChannels = Play.application.configuration.getStringList("default.channels")
       .map(_.toList).getOrElse(List.empty)
-    defaultChannels.foreach {channel =>
+    defaultChannels.foreach {channelName =>
       val id: String = nextId.toString
+      val channel = PublicChannel(id, channelName)
       nextId += 1
-      channelsById += (id -> PublicChannel(id, channel))
-      // TODO add children here
+      channelsById += (id -> channel)
+      log.info("Adding default channel {}", channel)
+      context.actorOf(Props(new ChannelActor(id)), id)
     }
   }
 
@@ -45,6 +50,7 @@ class ChannelsActor extends Actor {
     case message @ SubscribeChannel(channel) =>
       val id = channel.channelId
       context.child(id).getOrElse {
+        log.info("Adding new channel {}", channel)
         val child = context.actorOf(Props(new ChannelActor(id)), id)
         channelsById += (id -> channel)
         val channels = Channels(channelsById.values.toSeq)

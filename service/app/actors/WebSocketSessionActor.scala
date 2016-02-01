@@ -1,7 +1,6 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Props}
-import play.api.Play
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -24,8 +23,7 @@ class WebSocketSessionActor(out: ActorRef) extends Actor {
   )(ChatMessage.apply _)
 
   private def processMessage(msg: JsObject): Unit = {
-    def withBody[A](success: A => Unit) {
-      val message = (msg \ "body").validate[A]
+    def withBody[A](message: JsResult[A])(success: A => Unit) = {
       message match {
         case s: JsSuccess[A] =>
           success(s.value)
@@ -37,13 +35,15 @@ class WebSocketSessionActor(out: ActorRef) extends Actor {
     val msgType: String = (msg \ "type").as[String]
     msgType match {
       case "login" =>
-        withBody[Login] {
+        val message = (msg \ "body").validate[Login]
+        withBody(message) {
           UsersActor.usersActor ! _
         }
       case "channels" =>
         out ! SubscribeChannels
       case "postMessage" => {
-        withBody[ChatMessage] {
+        val message = (msg \ "body").validate[ChatMessage]
+        withBody(message) {
           ChannelsActor.channelsActor ! _
         }
       }
