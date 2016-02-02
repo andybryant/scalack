@@ -1,6 +1,7 @@
 package actors
 
 import akka.actor.{Actor, ActorRef, Props}
+import akka.event.Logging
 import play.api.libs.json._
 import play.api.libs.functional.syntax._
 
@@ -9,6 +10,7 @@ object WebSocketSessionActor {
 }
 
 class WebSocketSessionActor(out: ActorRef) extends Actor {
+  val log = Logging(context.system, this)
 
   implicit val loginReads: Reads[Login] = (
     (__ \ "userId").read[String] and
@@ -22,16 +24,26 @@ class WebSocketSessionActor(out: ActorRef) extends Actor {
     (__ \ "timestamp").read[Long]
   )(ChatMessage.apply _)
 
+  implicit val messageWrites = new Writes[ChatMessage] {
+    def writes(message: ChatMessage) = Json.obj(
+      "channelId" -> message.channelId,
+      "sender" -> message.sender,
+      "message" -> message.message,
+      "timestamp" -> message.timestamp
+    )
+  }
+
   private def processMessage(msg: JsObject): Unit = {
     def withBody[A](message: JsResult[A])(success: A => Unit) = {
       message match {
         case s: JsSuccess[A] =>
           success(s.value)
         case e: JsError =>
+          log.error("Failed to parse {}: {}", msg, e)
           out ! JsError.toJson(e).toString()
       }
     }
-
+    log.info("Received message {}", msg)
     val msgType: String = (msg \ "type").as[String]
     msgType match {
       case "login" =>
@@ -57,6 +69,8 @@ class WebSocketSessionActor(out: ActorRef) extends Actor {
       out ! Json.obj("type" -> "LoginSuccessful")
     case LoginFailed =>
       out ! Json.obj("type" -> "LoginFailed")
+    case msg @ ChatMessage(_, _, _, _) =>
+      out ! Json.toJson(msg)
     case unknown =>
       out ! JsString("Unknown message from client: " + unknown)
   }

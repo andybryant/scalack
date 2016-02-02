@@ -14,8 +14,13 @@ class ChannelActor(id: String) extends Actor {
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
 
   def receive = {
+    case message @ SubscribeChannel(channel) =>
+      context.watch(sender)
+      subscribers += sender
     case message @ ChatMessage(_, _, _, _) =>
       subscribers.foreach(_ ! message)
+    case Terminated(subscriber) =>
+      subscribers -= subscriber
   }
 }
 
@@ -33,7 +38,7 @@ class ChannelsActor extends Actor {
     val defaultChannels = Play.application.configuration.getStringList("default.channels")
       .map(_.toList).getOrElse(List.empty)
     defaultChannels.foreach {channelName =>
-      val id: String = nextId.toString
+      val id: String = "Ch" + nextId.toString
       val channel = PublicChannel(id, channelName)
       nextId += 1
       channelsById += (id -> channel)
@@ -44,9 +49,9 @@ class ChannelsActor extends Actor {
 
   def receive = {
     case SubscribeChannels =>
-      subscribers += sender()
-      context.watch(sender())
-      sender() ! Channels(channelsById.values.toSeq)
+      subscribers += sender
+      context.watch(sender)
+      sender ! Channels(channelsById.values.toSeq)
     case message @ SubscribeChannel(channel) =>
       val id = channel.channelId
       context.child(id).getOrElse {

@@ -19,8 +19,9 @@ class UserActor(userId: String) extends FSM[UserState, UserData] with Stash {
 
   when (Active) {
     case Event(Login(_,_), data @ ActiveData(sessions, _)) =>
-      context.watch(sender())
-      stay using data.copy(sessions = sessions + sender())
+      context.watch(sender)
+      sender ! LoginSuccessful
+      stay using data.copy(sessions = sessions + sender)
     case Event(Channels(channels), ActiveData(_, _)) =>
       channels.foreach {
         case channel@PublicChannel(_, _) =>
@@ -44,8 +45,6 @@ class UserActor(userId: String) extends FSM[UserState, UserData] with Stash {
   }
 
   initialize()
-
-  // TODO listen on new users and subscribe to private channel for them
 
 }
 
