@@ -1,24 +1,30 @@
 package actors
 
-import akka.actor.{Actor, ActorRef, Props, Terminated}
+import akka.actor._
 import play.api.Play
 import play.api.Play.current
 import play.libs.Akka
-import akka.event.Logging
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.{HashSet, Queue}
 
 class ChannelActor(id: String) extends Actor {
-  var messageHistory: Queue[ChatMessage] = Queue.empty[ChatMessage]
+  var nextId: Long = 1L
+  var messageHistory: Queue[PublishMessage] = Queue.empty[PublishMessage]
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
 
   def receive = {
     case message @ SubscribeChannel(channel) =>
       context.watch(sender)
       subscribers += sender
-    case message @ ChatMessage(_, _, _, _) =>
-      subscribers.foreach(_ ! message)
+    case RequestMessageHistory =>
+      sender ! MessageHistory(messageHistory.toSeq)
+    case message @ PostMessage(_, _, _) =>
+      val id = "msg" + nextId
+      nextId += 1L
+      val publishMsg: PublishMessage = PublishMessage(id, message)
+      messageHistory = messageHistory :+ publishMsg
+      subscribers.foreach(_ ! publishMsg)
     case Terminated(subscriber) =>
       subscribers -= subscriber
   }
@@ -28,8 +34,7 @@ object ChannelsActor {
   lazy val channelsActor: ActorRef = Akka.system.actorOf(Props(classOf[ChannelsActor]))
 }
 
-class ChannelsActor extends Actor {
-  val log = Logging(context.system, this)
+class ChannelsActor extends Actor with ActorLogging {
   var nextId: Long = 1L
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
   var channelsById: Map[String, Channel] = Map.empty
@@ -62,8 +67,8 @@ class ChannelsActor extends Actor {
         subscribers.foreach(_ ! channels)
         child
       } forward message
-    case message @ ChatMessage(id, sender, msg, timestamp) =>
-      context.child(id).foreach(_ ! message)
+    case message @ PostMessage(_, PostedMessage(_, channelId, _), _) =>
+      context.child(channelId).foreach(_ ! message)
     case Terminated(subscriber) =>
       subscribers -= subscriber
   }
@@ -80,6 +85,5 @@ case class PrivateChannel(channelId: String, exclusiveUserIds: Set[String]) exte
 case object SubscribeChannels
 case class CreatePrivateChannel(exclusiveUserIds: Set[String])
 case class SubscribeChannel(channel: Channel)
-case class ChatMessage(channelId: String, sender: String,
-                       message: String, timestamp: Long = System.currentTimeMillis())
-case class Channels(channels: Seq[Channel])
+case object RequestMessageHistory
+case class MessageHistory(history: Seq[PublishMessage])
