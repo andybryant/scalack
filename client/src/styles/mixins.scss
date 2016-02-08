@@ -1,0 +1,49 @@
+@mixin stripey() {
+  background-image: -webkit-gradient(linear, 0 100%, 100% 0,
+    color-stop(.25, rgba(255, 255, 255, .2)), color-stop(.25, transparent),
+    color-stop(.5, transparent), color-stop(.5, rgba(255, 255, 255, .2)),
+    color-stop(.75, rgba(255, 255, 255, .2)), color-stop(.75, transparent),
+    to(transparent));
+  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+  background-image: -moz-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+  background-image: -ms-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+  background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+  background-image: linear-gradient(45deg, rgba(255, 255, 255, .2) 25%, transparent 25%,
+    transparent 50%, rgba(255, 255, 255, .2) 50%, rgba(255, 255, 255, .2) 75%,
+    transparent 75%, transparent);
+}
+
+@mixin rounded($radius: 5px){
+  -webkit-border-radius: $radius;
+  -moz-border-radius: $radius;
+  border-radius: $radius;
+}
+
+@mixin background-size($size) {
+  -webkit-background-size: $size, $size;
+  -moz-background-size: $size, $size;
+  background-size: $size, $size; /* Controls the size of the stripes. */
+
+}
+
+@mixin transition($styles...) {
+  -moz-transition: $styles;
+  -ms-transition: $styles;
+  -o-transition: $styles;
+  -webkit-transition: $styles;
+  transition: $styles;
+}
+
+@mixin box-shadow($styles...) {
+  -moz-box-shadow: $styles;
+  -webkit-box-shadow: $styles;
+  box-shadow: $styles;
+}

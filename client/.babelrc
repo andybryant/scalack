@@ -1,0 +1,14 @@
+{
+  "presets": [ 
+    "es2015",
+    "stage-1",
+    "react"
+  ],
+  "plugins": [
+    "syntax-flow",
+    "syntax-object-rest-spread",
+    "transform-es2015-modules-commonjs",
+    "transform-object-rest-spread",
+    "transform-flow-strip-types"
+  ]
+}

@@ -1,0 +1,46 @@
+.Footer {
+  padding: 10px;
+  font-size: 12px;
+  font-family: "concourse_c3regular", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  clear: both;
+  text-align: center;
+  position: relative;
+  background: #ffffff;
+
+  ul {
+    list-style: none;
+    padding: 10px 0;
+    margin: 0;
+    position: relative;
+    left: -10px;
+  }
+  
+  li {
+    display: inline;
+    padding: 0 12px 0 12px;
+    border-right: 1px solid #fff;
+    border-right: 1px solid rgba(255, 255, 255, 0.50);
+  }
+
+  li:last-child, .last {
+    border: none
+  }
+
+  li:first-child {
+    //padding-left: 0
+  }
+
+  a, li {
+    text-decoration: none;
+    margin: 0;
+  }
+
+  * {
+    color: #5676a5;
+  }
+
+  a:hover {
+    color: #fff;
+  }
+
+}
