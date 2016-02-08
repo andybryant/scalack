@@ -24,7 +24,7 @@ package websocket {
           success(s.value)
         case e: JsError =>
           log.error("Failed to parse {}: {}", message, e)
-          out ! JsError.toJson(e).toString()
+          send(JsError.toJson(e))
       }
     }
 
@@ -32,6 +32,7 @@ package websocket {
       case Event(msg: JsObject, _) =>
         val msgType: String = (msg \ "type").as[String]
         var sessionData: SessionData = Unauthenticated
+        log.info("Received client message in Initial {}", msg)
         if (msgType == "login" ) {
           val payload = (msg \ "payload").validate[Login]
           withPayload(payload) {login =>
@@ -52,6 +53,7 @@ package websocket {
 
     when(Authenticated) {
       case Event(msg: JsObject, UserDetails(userId)) =>
+        log.info("Received client message in Authenticated {}", msg)
         val msgType: String = (msg \ "type").as[String]
         msgType match {
           case "channels" =>
@@ -71,14 +73,18 @@ package websocket {
         stay
       case unknown =>
         log.error("Unexpected message {}", unknown)
-        out ! JsString("Unknown message from client: " + unknown)
+        send(JsString("Unknown message from client: " + unknown))
         stay
     }
 
     initialize()
 
-    def send(payload: ClientPayloadOut) = {
-      out ! Json.stringify(payloadToJson(payload))
+    def send(payload: ClientPayloadOut): Unit = {
+      send(payloadToJson(payload))
+    }
+
+    def send(payload: JsValue): Unit = {
+      out ! payload
     }
 
     def payloadToJson(payload: ClientPayloadOut): JsValue = {
@@ -96,13 +102,15 @@ package websocket {
                   channel match {
                     case PublicChannel(channelId, name) =>
                       Json.obj(
-                        "channelId" -> channelId,
-                        "name" -> name
+                        "id" -> channelId,
+                        "name" -> name,
+                        "private" -> false
                       )
                     case PrivateChannel(channelId, exclusiveUserIds) =>
                       Json.obj(
-                        "channelId" -> channelId,
-                        "userIds" -> Json.arr(exclusiveUserIds.toSeq)
+                        "id" -> channelId,
+                        "contactIds" -> Json.arr(exclusiveUserIds.toSeq),
+                        "private" -> true
                       )
                   }
                 }
