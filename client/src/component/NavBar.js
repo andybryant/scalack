@@ -1,7 +1,6 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
 import { LeftNav, List, ListItem, FontIcon } from 'material-ui/lib';
-import { log } from '../util';
 
 class NavBar extends Component {
   constructor(props:any) {
@@ -22,7 +21,6 @@ class NavBar extends Component {
 
   render() {
     const { handleNav, showNav, channels } = this.props;
-    log.debug(channels);
     const items = channels.map(item => {
       const icon = <FontIcon className="material-icons">{item.private ? 'face' : 'group_work' }</FontIcon>;
       const route = `/channel/${item.id}`;

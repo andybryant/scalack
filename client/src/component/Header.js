@@ -3,13 +3,26 @@ import {
   AppBar,
   FontIcon,
   IconButton,
+  TextField,
 } from 'material-ui/lib';
 
 const propTypes = {
+  login: PropTypes.func.isRequired,
   toggleNavBar: PropTypes.func.isRequired,
 };
 
 class Header extends Component {
+
+  constructor(props) {
+    super(props);
+    this.handleLogin = this.handleLogin.bind(this);
+  }
+
+  handleLogin(event) {
+    const username = event.target.value;
+    const password = 'pass123';
+    this.props.login(username, password);
+  }
 
   render() {
     const leftIcon = (
@@ -18,9 +31,7 @@ class Header extends Component {
       </IconButton>
     );
     const rightIcon = (
-      <IconButton>
-        <FontIcon className="material-icons">more_vert</FontIcon>
-      </IconButton>
+      <TextField ref="userField" hintText="Username" onEnterKeyDown={this.handleLogin} />
     );
     return (
       <AppBar

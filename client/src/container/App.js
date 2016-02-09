@@ -12,6 +12,7 @@ import Footer from '../component/Footer';
 import { resetErrorMessage } from '../action';
 import { gotoUrl } from '../util/navigation';
 import { channelSelector } from '../selector';
+import thunkCreator from '../service/serviceThunkCreator';
 
 class App extends Component {
   constructor(props) {
@@ -19,6 +20,7 @@ class App extends Component {
     this.handleDismissClick = this.handleDismissClick.bind(this);
     this.handleToggleNavBar = this.handleToggleNavBar.bind(this);
     this.handleNav = this.handleNav.bind(this);
+    this.login = this.login.bind(this);
     this.state = { showNav: false };
   }
 
@@ -40,6 +42,11 @@ class App extends Component {
 
   handleToggleNavBar() {
     this.setState({showNav: !this.state.showNav});
+  }
+
+  login(user, password) {
+    const { wsService } = this.props;
+    wsService.send({ type: 'login', payload: { user, password }});
   }
 
   renderErrorMessage() {
@@ -64,7 +71,7 @@ class App extends Component {
     const { auth, children, history, channels } = this.props;
     return (
       <div className="main-content">
-        <Header auth={auth} toggleNavBar={this.handleToggleNavBar} />
+        <Header auth={auth} toggleNavBar={this.handleToggleNavBar} login={this.login} />
         <NavBar
           showNav={this.state.showNav}
           handleNav={this.handleNav}
@@ -93,10 +100,13 @@ App.propTypes = {
   // Injected by React Router
   children: PropTypes.node,
   history: PropTypes.object.isRequired,
+  // actions etc
+  wsService: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
-  const wsService = websocketServiceCreator(dispatch, 'ws://localhost:9000/ws');
+  const messageCallback = thunkCreator(dispatch);
+  const wsService = websocketServiceCreator(messageCallback, 'ws://localhost:9000/ws');
   const actions = bindActionCreators({ resetErrorMessage, pushState });
   return {
     ...actions,

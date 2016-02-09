@@ -1,0 +1,28 @@
+/* @flow  */
+import { log } from '../util';
+import { createAction } from 'redux-actions';
+
+export default function thunkCreator(dispatch: any) {
+  const errorCreator = createAction('error');
+  return (actionJson, send) => {
+    const action = JSON.parse(actionJson);
+    log.debug('Received', action);
+    const type = action.type;
+    switch (type) {
+    case 'loginSuccessful':
+      send({type: 'channels'});
+      dispatch(action);
+      break;
+    case 'loginFailed':
+      dispatch(action);
+      break;
+    case 'channels':
+      dispatch(action);
+      break;
+    default:
+      const err = new Error('Unknown action ' + actionJson);
+      dispatch(errorCreator(err));
+      break;
+    }
+  };
+}

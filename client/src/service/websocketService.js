@@ -1,29 +1,10 @@
 /* @flow  */
 import { log } from '../util';
 
-export default function websocketService(dispatch: any, url: string) {
+export default function websocketService(messageCallback: any, url: string) {
   const socket = new WebSocket(url); // eslint-disable-line new-cap
   const pendingActions = [];
-
-  socket.onopen = () => {
-    socket.send(JSON.stringify({ type: 'login', payload: { user: 'Bob', password: '123' }}));
-    pendingActions.forEach(action => {
-      log.debug('Sending', action);
-      socket.send(JSON.stringify(action));
-    });
-  };
-
-  socket.onmessage = event => {
-    const action = JSON.parse(event.data);
-    log.debug('Received', action);
-    dispatch(action);
-  };
-
-  socket.onerror = event => {
-    log.error('websocket error', event);
-  };
-
-  return {
+  const response = {
     status() {
       return socket.readyState;
     },
@@ -35,4 +16,24 @@ export default function websocketService(dispatch: any, url: string) {
       }
     },
   };
+
+  socket.onopen = () => {
+    pendingActions.forEach(action => {
+      log.debug('Sending', action);
+      socket.send(JSON.stringify(action));
+    });
+  };
+
+  socket.onmessage = event => {
+    const action = event.data;
+    log.debug('Received', action);
+    messageCallback(action, response.send);
+  };
+
+  socket.onerror = event => {
+    log.error('websocket error', event);
+    messageCallback(event, response.send);
+  };
+
+  return response;
 }
