@@ -18,11 +18,8 @@ export default function thunkCreator(dispatch: any) {
       dispatch(action);
       break;
     case 'channels':
-      dispatch(action);
-      break;
     case 'users':
-      dispatch(action);
-      break;
+    case 'messageHistory':
     case 'publishMessage':
       dispatch(action);
       break;

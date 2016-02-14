@@ -1,7 +1,7 @@
-export const LOGIN = 'LOGIN';
+export const LOGIN_SUCCESSFUL = 'loginSuccessful';
+export const LOGIN_FAILED = 'loginFailed';
 
-export const NEW_CHANNEL = 'NEW_CHANNEL';
-
-export const NEW_MESSAGE = 'NEW_MESSAGE';
-export const EDIT_MESSAGE = 'EDIT_MESSAGE';
-export const DELETE_MESSAGE = 'DELETE_MESSAGE';
+export const CHANNEL_SET = 'channels';
+export const USER_SET = 'users';
+export const PUBLISH_MESSAGE = 'publishMessage';
+export const MESSAGE_HISTORY = 'messageHistory';
