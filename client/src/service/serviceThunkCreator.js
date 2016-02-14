@@ -11,12 +11,19 @@ export default function thunkCreator(dispatch: any) {
     switch (type) {
     case 'loginSuccessful':
       send({type: 'channels'});
+      send({type: 'users'});
       dispatch(action);
       break;
     case 'loginFailed':
       dispatch(action);
       break;
     case 'channels':
+      dispatch(action);
+      break;
+    case 'users':
+      dispatch(action);
+      break;
+    case 'publishMessage':
       dispatch(action);
       break;
     default:

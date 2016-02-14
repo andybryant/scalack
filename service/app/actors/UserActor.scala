@@ -5,6 +5,7 @@ import play.libs.Akka
 
 package user {
 
+  import model._
   import utils.IdGenerator
 
   class UserActor(userId: String, userName: String) extends FSM[UserState, UserData] with Stash {
@@ -15,25 +16,39 @@ package user {
     when(Initial) {
       case Event(Login(_, _), Uninitialized) =>
         stash
-        goto(Active) using ActiveData(Set.empty, Seq.empty)
+        goto(Active) using ActiveData(Set.empty, None)
     }
 
     when (Active) {
-      case Event(Login(_,_), data @ ActiveData(sessions, _)) =>
+      case Event(Login(_,_), data @ ActiveData(_, _)) =>
         context.watch(sender)
-        sender ! LoginSuccessful
-        stay using data.copy(sessions = sessions + sender)
-      case Event(Channels(channels), ActiveData(_, _)) =>
-        channels.foreach {
-          case channel@PublicChannel(_, _) =>
-            ChannelsActor.channelsActor ! SubscribeChannel(channel)
-          case channel@PrivateChannel(_, users) =>
-            if (users contains userId)
-              ChannelsActor.channelsActor ! SubscribeChannel(channel)
-        }
+        sender ! LoginSuccessful(self, userId)
         stay
       case Event(Terminated(ref), data @ ActiveData(sessions, _)) =>
         stay using data.copy(sessions = sessions - ref)
+      case Event(SubscribeChannelList, data @ ActiveData(sessions, maybeChannels)) =>
+        maybeChannels.foreach(sender ! ChannelSet(_))
+        stay using data.copy(sessions = sessions + sender)
+      case Event(ChannelSet(channels), data @ ActiveData(sessions, maybeOldChannels)) =>
+        val filteredChannels = channels.filter {
+          case PublicChannel(_, _) => true
+          case PrivateChannel(_, userIds) => userIds.contains(userId)
+        }
+        maybeOldChannels match {
+          case Some(oldChannels) =>
+            val removedChannels = oldChannels.diff(filteredChannels)
+            removedChannels.foreach(ChannelsActor.channelsActor ! UnsubscribeChannel(_))
+            val newChannels = filteredChannels.diff(oldChannels)
+            newChannels.foreach(ChannelsActor.channelsActor ! SubscribeChannel(_))
+          case None =>
+            filteredChannels.foreach(ChannelsActor.channelsActor ! SubscribeChannel(_))
+        }
+        val channelMsg = ChannelSet(filteredChannels)
+        sessions.foreach(_ ! channelMsg)
+        stay using ActiveData(sessions, Some(filteredChannels))
+      case Event(msg @ MessageHistory(_, _), ActiveData(sessions, _)) =>
+        sessions.foreach(_ ! msg)
+        stay
       case Event(msg @ PublishMessage(_, _), ActiveData(sessions, _)) =>
         sessions.foreach(_ ! msg)
         stay
@@ -41,39 +56,12 @@ package user {
 
     onTransition {
       case Initial -> Active =>
-        ChannelsActor.channelsActor ! SubscribeChannels
+        ChannelsActor.channelsActor ! SubscribeChannelList
         unstashAll
     }
 
     initialize()
 
-  }
-
-  object UsersActor {
-    lazy val usersActor: ActorRef = Akka.system.actorOf(Props(classOf[UsersActor]))
-  }
-
-  class UsersActor extends Actor with ActorLogging {
-    var userNameToId: Map[String, String] = Map.empty
-    val idGenerator = IdGenerator.create("User")
-
-    override def receive = {
-      case message@Login(userName, _) =>
-        val id = if (userNameToId.contains(userName)) {
-          userNameToId(userName)
-        } else {
-          idGenerator.next()
-        }
-        context.child(id).getOrElse {
-          log.info("Adding new user id={} name={}", id, userName)
-          val child = context.actorOf(Props(new UserActor(id, userName)), id)
-          userNameToId.keys.foreach {
-            (user) => ChannelsActor.channelsActor ! CreatePrivateChannel(Set(userName, user))
-          }
-          userNameToId += (userName -> id)
-          child
-        } forward message
-    }
   }
 
   sealed trait UserState
@@ -82,9 +70,44 @@ package user {
 
   sealed trait UserData
   case object Uninitialized extends UserData
-  case class ActiveData(sessions: Set[ActorRef], channels: Seq[Channel]) extends UserData
+  case class ActiveData(sessions: Set[ActorRef], channels: Option[Set[Channel]]) extends UserData
+
+  object UsersActor {
+    lazy val usersActor: ActorRef = Akka.system.actorOf(Props(classOf[UsersActor]))
+  }
+
+  class UsersActor extends Actor with ActorLogging {
+    val idGenerator = IdGenerator.create("User")
+    var userNameToId: Map[String, String] = Map.empty
+    var userListSubscribers: Set[ActorRef] = Set.empty
+
+    override def receive = {
+      case message @ Login(userName, _) =>
+        val id = if (userNameToId.contains(userName)) {
+          userNameToId(userName)
+        } else {
+          idGenerator.next()
+        }
+        context.child(id).getOrElse {
+          log.info("Adding new user id={} name={}", id, userName)
+          val child = context.actorOf(Props(new UserActor(id, userName)), id)
+          val userIdSets = userNameToId.values.map {
+            (otherUserId) => Set(id, otherUserId)
+          }
+          ChannelsActor.channelsActor ! CreatePrivateChannels(userIdSets)
+          userNameToId += (userName -> id)
+          val usersMsg = UserSet(userNameToId.values.toSet)
+          userListSubscribers.foreach(_ ! usersMsg)
+          child
+        } forward message
+      case SubscribeUserList =>
+        userListSubscribers += sender
+        sender ! UserSet(userNameToId.values.toSet)
+        context.watch(sender)
+    }
+  }
+
 }
 
 
-case class UserCreated(id: String, name: String)
-
+case object SubscribeUserList

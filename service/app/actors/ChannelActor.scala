@@ -1,27 +1,30 @@
 package actors
 
 import akka.actor._
+import model.{MessageHistory, PublishMessage, ChannelSet, PostedMessage}
 import play.api.Play
 import play.api.Play.current
 import play.libs.Akka
+import utils.IdGenerator
 
 import scala.collection.JavaConversions._
 import scala.collection.immutable.{HashSet, Queue}
 
 class ChannelActor(id: String) extends Actor {
-  var nextId: Long = 1L
+  val idGenerator = IdGenerator.create("Msg")
   var messageHistory: Queue[PublishMessage] = Queue.empty[PublishMessage]
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
 
   def receive = {
-    case message @ SubscribeChannel(channel) =>
+    case message @ SubscribeChannel(_) =>
       context.watch(sender)
       subscribers += sender
-    case RequestMessageHistory =>
-      sender ! MessageHistory(messageHistory.toSeq)
+      sender ! MessageHistory(id, messageHistory.toSeq)
+    case message @ UnsubscribeChannel(_) =>
+      context.unwatch(sender)
+      subscribers -= sender
     case message @ PostMessage(_, _, _) =>
-      val id = "msg" + nextId
-      nextId += 1L
+      val id = idGenerator.next()
       val publishMsg: PublishMessage = PublishMessage(id, message)
       messageHistory = messageHistory :+ publishMsg
       subscribers.foreach(_ ! publishMsg)
@@ -35,7 +38,7 @@ object ChannelsActor {
 }
 
 class ChannelsActor extends Actor with ActorLogging {
-  var nextId: Long = 1L
+  val idGenerator = IdGenerator.create("Channel")
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
   var channelsById: Map[String, Channel] = Map.empty
 
@@ -43,9 +46,8 @@ class ChannelsActor extends Actor with ActorLogging {
     val defaultChannels = Play.application.configuration.getStringList("default.channels")
       .map(_.toList).getOrElse(List.empty)
     defaultChannels.foreach {channelName =>
-      val id: String = "Ch" + nextId.toString
+      val id: String = idGenerator.next()
       val channel = PublicChannel(id, channelName)
-      nextId += 1
       channelsById += (id -> channel)
       log.info("Adding default channel {}", channel)
       context.actorOf(Props(new ChannelActor(id)), id)
@@ -53,26 +55,39 @@ class ChannelsActor extends Actor with ActorLogging {
   }
 
   def receive = {
-    case SubscribeChannels =>
+    case SubscribeChannelList =>
       subscribers += sender
       context.watch(sender)
-      sender ! Channels(channelsById.values.toSeq)
+      sender ! ChannelSet(channelsById.values.toSet)
     case message @ SubscribeChannel(channel) =>
       val id = channel.channelId
-      context.child(id).getOrElse {
-        log.info("Adding new channel {}", channel)
-        val child = context.actorOf(Props(new ChannelActor(id)), id)
-        channelsById += (id -> channel)
-        val channels = Channels(channelsById.values.toSeq)
-        subscribers.foreach(_ ! channels)
-        child
-      } forward message
+      context.child(id).foreach {
+        _ forward message
+      }
+    case message @ UnsubscribeChannel(channel) =>
+      val id = channel.channelId
+      context.child(id).foreach {
+        _ forward message
+      }
+    case CreatePrivateChannels(userIdsIterable) =>
+      userIdsIterable.foreach{
+        userIds => {
+          val id: String = idGenerator.next()
+          val channel = PrivateChannel(id, userIds)
+          context.actorOf(Props(new ChannelActor(id)), id)
+          channelsById += (channel.channelId -> channel)
+        }
+      }
+      val channels = ChannelSet(channelsById.values.toSet)
+      subscribers.foreach(_ ! channels)
     case message @ PostMessage(_, PostedMessage(_, channelId, _), _) =>
       context.child(channelId).foreach(_ ! message)
     case Terminated(subscriber) =>
       subscribers -= subscriber
   }
+
 }
+
 
 
 sealed trait Channel {
@@ -82,8 +97,8 @@ case class PublicChannel(channelId: String, name: String) extends Channel
 case class PrivateChannel(channelId: String, exclusiveUserIds: Set[String]) extends Channel
 
 
-case object SubscribeChannels
-case class CreatePrivateChannel(exclusiveUserIds: Set[String])
 case class SubscribeChannel(channel: Channel)
-case object RequestMessageHistory
-case class MessageHistory(history: Seq[PublishMessage])
+case class UnsubscribeChannel(channel: Channel)
+case object SubscribeChannelList
+case class SubscribeChannels(channels: Set[Channel])
+case class CreatePrivateChannels(exclusiveUserIdsIterator: Iterable[Set[String]])
