@@ -35,9 +35,11 @@ class App extends Component {
     event.preventDefault();
   }
 
-  handleNav(url) {
-    this.setState({showNav: false});
-    gotoUrl(this.props.history, url);
+  handleNav(open, url) {
+    this.setState({showNav: open});
+    if (url) {
+      gotoUrl(this.props.history, url);
+    }
   }
 
   handleToggleNavBar() {

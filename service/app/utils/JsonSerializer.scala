@@ -45,7 +45,10 @@ class JsonSerializer {
       case UserSet(users) =>
         Json.obj(
           "type" -> "users",
-          "payload" -> users.toSeq
+          "payload" -> JsArray(users.toSeq.map(user => Json.obj(
+            "id" -> user.id,
+            "name" -> user.name
+          )))
         )
       case MessageHistory(channelId, history) =>
         Json.obj(

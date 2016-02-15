@@ -81,6 +81,10 @@ package user {
     var userNameToId: Map[String, String] = Map.empty
     var userListSubscribers: Set[ActorRef] = Set.empty
 
+    def userSet = {
+      UserSet((userNameToId map { case (name, id) => User(id, name) }).toSet)
+    }
+
     override def receive = {
       case message @ Login(userName, _) =>
         val id = if (userNameToId.contains(userName)) {
@@ -96,13 +100,12 @@ package user {
           }
           ChannelsActor.channelsActor ! CreatePrivateChannels(userIdSets)
           userNameToId += (userName -> id)
-          val usersMsg = UserSet(userNameToId.values.toSet)
-          userListSubscribers.foreach(_ ! usersMsg)
+          userListSubscribers.foreach(_ ! userSet)
           child
         } forward message
       case SubscribeUserList =>
         userListSubscribers += sender
-        sender ! UserSet(userNameToId.values.toSet)
+        sender ! userSet
         context.watch(sender)
     }
   }
@@ -111,3 +114,4 @@ package user {
 
 
 case object SubscribeUserList
+case class User(id: String, name: String)
