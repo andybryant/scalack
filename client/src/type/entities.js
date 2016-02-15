@@ -6,12 +6,14 @@ export type Contact = {
 
 export type Channel = {
   id: string,
+  name?: string,
   private: boolean,
-  contacts: Array<string>,
+  contactIds: Array<string>,
 };
 
 export type Message = {
-  id?: string,
+  clientMessageId?: string,
+  messageId?: string,
   senderId: string,
   channelId: string,
   text: string,

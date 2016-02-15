@@ -34,7 +34,7 @@ class JsonSerializer {
                   case PrivateChannel(channelId, exclusiveUserIds) =>
                     Json.obj(
                       "id" -> channelId,
-                      "contactIds" -> Json.arr(exclusiveUserIds.toSeq),
+                      "contactIds" -> exclusiveUserIds.toSeq,
                       "private" -> true
                     )
                 }
@@ -45,7 +45,7 @@ class JsonSerializer {
       case UserSet(users) =>
         Json.obj(
           "type" -> "users",
-          "payload" -> JsArray(users.toSeq.map(user => JsString(user)))
+          "payload" -> users.toSeq
         )
       case MessageHistory(channelId, history) =>
         Json.obj(

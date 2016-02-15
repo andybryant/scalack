@@ -3,7 +3,7 @@ import type { State } from '../type/state';
 
 const initialState: State = {
   auth: {
-    userid: 'AB125',
+    userId: 'AB125',
   },
   errorMessage: null,
   router: {

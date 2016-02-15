@@ -15,8 +15,12 @@ class ChannelPage extends Component {
   }
 
   render() {
+    // const { channels } = this.props;
+    // const channelId = 'sss';
+
     return (
       <div className="ChannelPage container">
+        <h2></h2>
       </div>
     );
   }

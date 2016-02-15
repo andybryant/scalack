@@ -1,7 +1,12 @@
 /* @flow  */
 import { log } from '../util';
 
-export default function websocketService(messageCallback: any, url: string) {
+type WSService = {
+  status: () => number,
+  send: (action: any) => void
+}
+
+export default function websocketService(messageCallback: any, url: string): WSService {
   const socket = new WebSocket(url); // eslint-disable-line new-cap
   const pendingActions = [];
   const response = {

@@ -3,7 +3,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import Root from './container/Root';
 import configureStore from './store/configureStore';
-import initialState from './stub/data';
+import initialState from './data/stub';
 import injectTapEventPlugin from 'react-tap-event-plugin';
 
 injectTapEventPlugin();

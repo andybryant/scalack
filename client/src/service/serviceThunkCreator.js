@@ -2,7 +2,7 @@
 import { log } from '../util';
 import { createAction } from 'redux-actions';
 
-export default function thunkCreator(dispatch: any) {
+export default function thunkCreator(dispatch: any): any {
   const errorCreator = createAction('error');
   return (actionJson, send) => {
     const action = JSON.parse(actionJson);
