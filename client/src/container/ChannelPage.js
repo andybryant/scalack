@@ -8,12 +8,10 @@ import {
 } from 'material-ui/lib';
 
 const propTypes = {
-  routeParams: PropTypes.object.isRequired,
-  entities: PropTypes.object.isRequired,
   channels: PropTypes.array.isRequired,
   params: PropTypes.object.isRequired,
   messages: PropTypes.object.isRequired,
-  wsService: PropTypes.object.isRequired,
+  postMessage: PropTypes.func.isRequired,
 };
 
 class ChannelPage extends Component {
@@ -23,21 +21,14 @@ class ChannelPage extends Component {
   }
 
   handleSendMessage(event) {
-    const { wsService, params: { channelId } } = this.props;
-    wsService.send({
-      type: 'postMessage',
-      payload: {
-        clientMessageId: '444',
-        channelId,
-        text: event.target.value,
-      },
-    });
+    const { postMessage, params: { channelId } } = this.props;
+    postMessage(channelId, event.target.value);
   }
 
   render() {
     const { channels, params: { channelId }, messages } = this.props;
     const channel = channels.find(ch => ch.id === channelId);
-    const channelMessages = messages[channelId];
+    const channelMessages = messages[channelId] || [];
     const msg = channelMessages.map(message => <div key={message.id}>{message.text}</div>);
     return (
       <div className="ChannelPage container">

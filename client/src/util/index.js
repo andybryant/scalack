@@ -1,4 +1,4 @@
-import * as log from './log';
+import log from './log';
 
 export {
   compareStrings,

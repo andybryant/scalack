@@ -93,6 +93,7 @@ package websocket {
     }
 
     def send(payload: JsValue): Unit = {
+      log.info("Sending {}", payload)
       out ! payload
     }
 

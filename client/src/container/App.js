@@ -4,12 +4,12 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { pushState } from 'redux-router';
 import ThemeManager from 'material-ui/lib/styles/theme-manager';
-import websocketServiceCreator from '../service/websocketService';
+import { websocketService } from '../service/websocketService';
 import ScalackTheme from './ScalackTheme';
 import Header from '../component/Header';
 import NavBar from '../component/NavBar';
 import Footer from '../component/Footer';
-import { resetErrorMessage } from '../action';
+import * as actions from '../action';
 import { gotoUrl } from '../util/navigation';
 import { channelSelector } from '../selector';
 import thunkCreator from '../service/serviceThunkCreator';
@@ -20,7 +20,6 @@ class App extends Component {
     this.handleDismissClick = this.handleDismissClick.bind(this);
     this.handleToggleNavBar = this.handleToggleNavBar.bind(this);
     this.handleNav = this.handleNav.bind(this);
-    this.login = this.login.bind(this);
     this.state = { showNav: false };
   }
 
@@ -46,11 +45,6 @@ class App extends Component {
     this.setState({showNav: !this.state.showNav});
   }
 
-  login(user, password) {
-    const { wsService } = this.props;
-    wsService.send({ type: 'login', payload: { user, password }});
-  }
-
   renderErrorMessage() {
     const { errorMessage } = this.props;
     if (!errorMessage) {
@@ -70,10 +64,10 @@ class App extends Component {
   }
 
   render() {
-    const { auth, children, history, channels } = this.props;
+    const { children, history, channels } = this.props;
     return (
       <div className="main-content">
-        <Header auth={auth} toggleNavBar={this.handleToggleNavBar} login={this.login} />
+        <Header toggleNavBar={this.handleToggleNavBar} {...this.props} />
         <NavBar
           showNav={this.state.showNav}
           handleNav={this.handleNav}
@@ -102,17 +96,14 @@ App.propTypes = {
   // Injected by React Router
   children: PropTypes.node,
   history: PropTypes.object.isRequired,
-  // actions etc
-  wsService: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
   const messageCallback = thunkCreator(dispatch);
-  const wsService = websocketServiceCreator(messageCallback, 'ws://localhost:9000/ws');
-  const actions = bindActionCreators({ resetErrorMessage, pushState });
+  websocketService.connect(messageCallback);
+  const boundActions = bindActionCreators({ pushState, ...actions }, dispatch);
   return {
-    ...actions,
-    wsService,
+    ...boundActions,
   };
 }
 

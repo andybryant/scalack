@@ -4,12 +4,11 @@ import * as types from '../constants/ActionTypes';
 const defaultMeta = { local: true, synced: false };
 const defaultServerMeta = { toServer: true, ...defaultMeta };
 
-export const postMessage = createAction(
-  types.POST_MESSAGE,
-  (channelId, text) => ({
-    channelId,
-    text,
-    clientMessageId: 'Msg' + Date.now(),
+export const login = createAction(
+  types.LOGIN,
+  (user) => ({
+    user,
+    password: 'pass1234',
   }),
   () => defaultServerMeta
 );

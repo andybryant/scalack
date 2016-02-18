@@ -3,12 +3,14 @@ import { reduxReactRouter } from 'redux-router';
 import DevTools from '../container/DevTools';
 import createHistory from 'history/lib/createBrowserHistory';
 import routes from '../routes';
+import websocketMiddleware from '../service/websocketMiddleware';
 import thunk from 'redux-thunk';
 import createLogger from 'redux-logger';
 import rootReducer from '../reducer';
 
 const finalCreateStore = compose(
   applyMiddleware(thunk),
+  applyMiddleware(websocketMiddleware),
   reduxReactRouter({ routes, createHistory }),
   applyMiddleware(createLogger()),
   DevTools.instrument()

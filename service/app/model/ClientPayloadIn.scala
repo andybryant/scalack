@@ -11,6 +11,6 @@ case class Login(user: String, password: String) extends ClientPayloadIn
   * @param text message body
   */
 case class PostedMessage(
-                          clientMessageId: String,
-                          channelId: String,
-                          text: String) extends ClientPayloadIn
+        clientMessageId: String,
+        channelId: String,
+        text: String) extends ClientPayloadIn

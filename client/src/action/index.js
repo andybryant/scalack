@@ -7,5 +7,10 @@ export const resetErrorMessage = createAction(types.RESET_ERROR_MESSAGE);
 export const loginInitiated = createAction(types.LOGIN);
 
 export {
-  newMessage,
+  login,
+} from './authActions';
+
+export {
+  postMessage,
 } from './messageActions';
+
