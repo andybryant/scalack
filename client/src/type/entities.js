@@ -4,6 +4,13 @@ export type Contact = {
   name: string,
 };
 
+export type NamedChannel = {
+  id: string,
+  name: string,
+  private: boolean,
+  contactIds: Array<string>,
+};
+
 export type Channel = {
   id: string,
   name?: string,
