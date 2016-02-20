@@ -9,11 +9,12 @@ class JsonSerializer {
 
   def payloadToJson(payload: ClientPayloadOut, sessionActor: ActorRef): JsValue = {
     payload match {
-      case LoginSuccessful(_, userId) =>
+      case LoginSuccessful(_, userId, userName) =>
         Json.obj(
           "type" -> "loginSuccessful",
           "payload" -> Json.obj(
-            "userId" -> userId
+            "userId" -> userId,
+            "userName" -> userName
           )
         )
       case LoginFailed =>

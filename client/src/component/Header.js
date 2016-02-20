@@ -1,3 +1,4 @@
+/* @flow  */
 import React, { Component, PropTypes } from 'react';
 import {
   AppBar,
@@ -9,29 +10,47 @@ import {
 const propTypes = {
   login: PropTypes.func.isRequired,
   toggleNavBar: PropTypes.func.isRequired,
+  userName: PropTypes.string,
+  loggedIn: PropTypes.bool,
 };
 
 class Header extends Component {
 
   constructor(props) {
     super(props);
+    this.handleChange = this.handleChange.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
+    this.state = {
+      userName: '',
+    };
+  }
+
+  handleChange(event) {
+    const userName = event.target.value;
+    this.setState({ userName });
   }
 
   handleLogin(event) {
-    const username = event.target.value;
+    const userName = event.target.value;
     const password = 'pass123';
-    this.props.login(username, password);
+    this.props.login(userName, password);
+    this.setState({ userName: ''});
   }
 
   render() {
+    const { userName, loggedIn, toggleNavBar } = this.props;
     const leftIcon = (
-      <IconButton onClick={this.props.toggleNavBar}>
+      <IconButton onClick={toggleNavBar}>
         <FontIcon className="material-icons">menu</FontIcon>
       </IconButton>
     );
-    const rightIcon = (
-      <TextField ref="userField" hintText="Username" onEnterKeyDown={this.handleLogin} />
+    const rightIcon = loggedIn ? <span>{userName}</span> : (
+      <TextField ref="userField"
+        hintText="Username"
+        onChange={this.handleChange}
+        value={this.state.userName}
+        onEnterKeyDown={this.handleLogin}
+        />
     );
     return (
       <AppBar

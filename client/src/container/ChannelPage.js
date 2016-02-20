@@ -3,6 +3,7 @@ import React, { Component, PropTypes } from 'react';
 import { connect } from 'react-redux';
 import { channelSelector } from '../selector';
 import * as actions from '../action';
+import Message from '../component/Message';
 import {
   TextField,
 } from 'material-ui/lib';
@@ -11,32 +12,50 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   params: PropTypes.object.isRequired,
   messages: PropTypes.object.isRequired,
+  channelMessages: PropTypes.array.isRequired,
   postMessage: PropTypes.func.isRequired,
 };
 
 class ChannelPage extends Component {
   constructor(props) {
     super(props);
+    this.handleChange = this.handleChange.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
+    this.state = {
+      message: '',
+    };
+  }
+
+  handleChange(event) {
+    const message = event.target.value;
+    this.setState({ message });
   }
 
   handleSendMessage(event) {
     const { postMessage, params: { channelId } } = this.props;
     postMessage(channelId, event.target.value);
+    this.setState({ message: ''});
   }
 
   render() {
-    const { channels, params: { channelId }, messages } = this.props;
+    const { channels, channelMessages, params: { channelId } } = this.props;
     const channel = channels.find(ch => ch.id === channelId);
-    const channelMessages = messages[channelId] || [];
-    const msg = channelMessages.map(message => <div key={message.id}>{message.text}</div>);
+    const msg = channelMessages.map(message => <Message {...message} />);
     return (
       <div className="ChannelPage container">
-        <h2>{channel.private ? 'Private' : channel.name}</h2>
-        <div>
+        <div className="title">{channel.name ? channel.name : 'Private'}</div>
+        <div className="messages">
           {msg}
         </div>
-      <TextField ref="messageField" hintText="New message" onEnterKeyDown={this.handleSendMessage} />
+        <TextField
+          className="message-input"
+          ref="messageField"
+          hintText="New message"
+          fullWidth
+          onChange={this.handleChange}
+          onEnterKeyDown={this.handleSendMessage}
+          value={this.state.message}
+          />
       </div>
     );
   }

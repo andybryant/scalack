@@ -3,12 +3,14 @@ import type { State } from '../type/state';
 
 const initialState: State = {
   auth: {
-    userId: 'AB125',
+    userId: 'User125',
+    userName: 'Bob',
+    loggedIn: true,
   },
   errorMessage: null,
   router: {
     params: {
-      channel: 'Ch1',
+      channelId: 'Ch1',
     },
     location: {
       pathname: '/channel/Ch1',
@@ -30,6 +32,8 @@ const initialState: State = {
         { id: '123', senderId: 'AB123', channelId: 'Ch1', timestamp: 123456, text: 'yoyoyo'},
         { id: '124', senderId: 'AB125', channelId: 'Ch1', timestamp: 123458, text: 'hey hey'},
       ],
+      'Ch2': [],
+      'Ch3': [],
     },
   },
 };

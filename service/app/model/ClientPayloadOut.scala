@@ -5,7 +5,7 @@ import akka.actor.ActorRef
 
 sealed trait ClientPayloadOut
 
-case class LoginSuccessful(userRef: ActorRef, userId: String) extends ClientPayloadOut
+case class LoginSuccessful(userRef: ActorRef, userId: String, userName: String) extends ClientPayloadOut
 case object LoginFailed extends ClientPayloadOut
 case class ChannelSet(channels: Set[Channel]) extends ClientPayloadOut
 case class UserSet(users: Set[User]) extends ClientPayloadOut

@@ -2,7 +2,7 @@ package model
 
 sealed trait ClientPayloadIn
 
-case class Login(user: String, password: String) extends ClientPayloadIn
+case class Login(userName: String, password: String) extends ClientPayloadIn
 /**
   * Chat message received from client.
   *

@@ -6,8 +6,8 @@ const defaultServerMeta = { toServer: true, ...defaultMeta };
 
 export const login = createAction(
   types.LOGIN,
-  (user) => ({
-    user,
+  (userName) => ({
+    userName,
     password: 'pass1234',
   }),
   () => defaultServerMeta

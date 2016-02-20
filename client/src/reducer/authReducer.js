@@ -1,5 +1,7 @@
 /* @flow  */
+import type { LoginDetails } from '../type/state';
 import { handleActions } from 'redux-actions';
+import update from 'immupdate';
 import {
   LOGIN_SUCCESSFUL,
   LOGIN_FAILED,
@@ -7,14 +9,11 @@ import {
 
 /* $FlowFixMe - computed keys not supported by flow yet */
 export const authReducer = handleActions({
-  [LOGIN_SUCCESSFUL]: (state) => {
-    // todo set up auth state
-    return state;
+  [LOGIN_SUCCESSFUL]: (state: LoginDetails, action: any) => {
+    const { userId, userName } = action.payload;
+    return update(state, { userId, userName, loggedIn: true });
   },
   [LOGIN_FAILED]: (state) => {
-    // todo set up auth state
-    return state;
+    return update(state, { userId: undefined, userName: undefined, loggedIn: false });
   },
-}, {
-  userId: 'andy',
-});
+}, {});

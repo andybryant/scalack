@@ -3,7 +3,9 @@ import type { Contact, Channel, Message } from './entities';
 
 
 export type LoginDetails = {
-  userId: string,
+  userId?: string,
+  userName?: string,
+  loggedIn: boolean,
 };
 
 export type Entities = {

@@ -1,0 +1,18 @@
+.ChannelPage {
+
+  .title {
+    margin-top: 16px;
+    margin-bottom: 16px;
+    font-size: 24px;
+    font-weight: bold;
+  }    
+
+  .messages {
+    height: 400px;
+    overflow: scroll;
+  }
+
+  .message-input {
+    height: 80px;
+  }
+}

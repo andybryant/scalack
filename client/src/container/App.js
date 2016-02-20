@@ -11,7 +11,7 @@ import NavBar from '../component/NavBar';
 import Footer from '../component/Footer';
 import * as actions from '../action';
 import { gotoUrl } from '../util/navigation';
-import { channelSelector } from '../selector';
+import { appSelector } from '../selector';
 import thunkCreator from '../service/serviceThunkCreator';
 
 class App extends Component {
@@ -107,4 +107,4 @@ function mapDispatchToProps(dispatch) {
   };
 }
 
-export default connect(channelSelector, mapDispatchToProps)(App);
+export default connect(appSelector, mapDispatchToProps)(App);

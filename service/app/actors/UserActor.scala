@@ -20,9 +20,9 @@ package user {
     }
 
     when (Active) {
-      case Event(Login(_,_), data @ ActiveData(_, _)) =>
+      case Event(Login(userName,_), data @ ActiveData(_, _)) =>
         context.watch(sender)
-        sender ! LoginSuccessful(self, userId)
+        sender ! LoginSuccessful(self, userId, userName)
         stay
       case Event(Terminated(ref), data @ ActiveData(sessions, _)) =>
         stay using data.copy(sessions = sessions - ref)
@@ -107,6 +107,8 @@ package user {
         userListSubscribers += sender
         sender ! userSet
         context.watch(sender)
+      case Terminated(subscriber) =>
+        userListSubscribers -= subscriber
     }
   }
 

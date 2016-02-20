@@ -44,7 +44,7 @@ package websocket {
           log.warning("Unexpected message {}", msg)
         }
         stay
-      case Event(msg @ LoginSuccessful(userRef, userId), Unauthenticated)  =>
+      case Event(msg @ LoginSuccessful(userRef, userId, _), Unauthenticated)  =>
         send(msg)
         goto(Authenticated) using UserDetails(userRef, userId)
       case Event(msg @ LoginFailed, Unauthenticated) =>
