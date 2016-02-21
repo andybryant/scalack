@@ -7,7 +7,7 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import { websocketService } from '../service/websocketService';
 import ScalackTheme from './ScalackTheme';
 import Header from '../component/Header';
-import NavBar from '../component/NavBar';
+import ChannelList from '../component/ChannelList';
 import Footer from '../component/Footer';
 import * as actions from '../action';
 import { gotoUrl } from '../util/navigation';
@@ -18,9 +18,7 @@ class App extends Component {
   constructor(props) {
     super(props);
     this.handleDismissClick = this.handleDismissClick.bind(this);
-    this.handleToggleNavBar = this.handleToggleNavBar.bind(this);
     this.handleNav = this.handleNav.bind(this);
-    this.state = { showNav: false };
   }
 
   getChildContext() {
@@ -35,14 +33,9 @@ class App extends Component {
   }
 
   handleNav(open, url) {
-    this.setState({showNav: open});
     if (url) {
       gotoUrl(this.props.history, url);
     }
-  }
-
-  handleToggleNavBar() {
-    this.setState({showNav: !this.state.showNav});
   }
 
   renderErrorMessage() {
@@ -67,15 +60,22 @@ class App extends Component {
     const { children, history, channels } = this.props;
     return (
       <div className="main-content">
-        <Header toggleNavBar={this.handleToggleNavBar} {...this.props} />
-        <NavBar
-          showNav={this.state.showNav}
-          handleNav={this.handleNav}
-          history={history}
-          channels={channels}
-          />
-        {this.renderErrorMessage()}
-        {children}
+        <Header {...this.props} />
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-3">
+              <ChannelList
+                handleNav={this.handleNav}
+                history={history}
+                channels={channels}
+                />
+            </div>
+            <div className="col-lg-9">
+              {this.renderErrorMessage()}
+              {children}
+            </div>
+          </div>
+        </div>
         <Footer />
       </div>
     );

@@ -4,12 +4,13 @@ import {
   AppBar,
   FontIcon,
   IconButton,
+  IconMenu,
+  MenuItem,
   TextField,
 } from 'material-ui/lib';
 
 const propTypes = {
   login: PropTypes.func.isRequired,
-  toggleNavBar: PropTypes.func.isRequired,
   userName: PropTypes.string,
   loggedIn: PropTypes.bool,
 };
@@ -38,13 +39,25 @@ class Header extends Component {
   }
 
   render() {
-    const { userName, loggedIn, toggleNavBar } = this.props;
+    const { userName, loggedIn } = this.props;
     const leftIcon = (
-      <IconButton onClick={toggleNavBar}>
-        <FontIcon className="material-icons">menu</FontIcon>
+      <IconButton>
+        <FontIcon className="material-icons">chat</FontIcon>
       </IconButton>
     );
-    const rightIcon = loggedIn ? <span>{userName}</span> : (
+    const rightIcon = loggedIn ? (
+        <div className="right-icon">
+          <span className="user-name">{userName}</span>
+          <IconMenu iconButtonElement={
+            <IconButton>
+              <FontIcon className="material-icons">more_vert</FontIcon>
+            </IconButton>}
+            targetOrigin={{horizontal: 'right', vertical: 'top'}}
+            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
+          >
+            <MenuItem primaryText="Sign out" />
+          </IconMenu>
+        </div> ) : (
       <TextField ref="userField"
         hintText="Username"
         onChange={this.handleChange}

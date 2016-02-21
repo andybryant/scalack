@@ -10,7 +10,7 @@ import utils.IdGenerator
 import scala.collection.JavaConversions._
 import scala.collection.immutable.{HashSet, Queue}
 
-class ChannelActor(id: String) extends Actor {
+class ChannelActor(id: String) extends Actor with ActorLogging {
   val idGenerator = IdGenerator.create("Msg")
   var messageHistory: Queue[PublishMessage] = Queue.empty[PublishMessage]
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
@@ -19,6 +19,7 @@ class ChannelActor(id: String) extends Actor {
     case message @ SubscribeChannel(_) =>
       context.watch(sender)
       subscribers += sender
+      log.debug("Sending history {} to {}", messageHistory, sender)
       sender ! MessageHistory(id, messageHistory.toSeq)
     case message @ UnsubscribeChannel(_) =>
       context.unwatch(sender)

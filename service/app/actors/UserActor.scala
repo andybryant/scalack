@@ -47,6 +47,7 @@ package user {
         sessions.foreach(_ ! channelMsg)
         stay using ActiveData(sessions, Some(filteredChannels))
       case Event(msg @ MessageHistory(_, _), ActiveData(sessions, _)) =>
+        log.debug("Sending history {} to sessions {}", msg, sessions)
         sessions.foreach(_ ! msg)
         stay
       case Event(msg @ PublishMessage(_, _), ActiveData(sessions, _)) =>

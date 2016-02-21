@@ -1,8 +1,8 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
-import { LeftNav, List, ListItem, FontIcon } from 'material-ui/lib';
+import { List, ListItem, FontIcon } from 'material-ui/lib';
 
-class NavBar extends Component {
+class ChannelList extends Component {
   constructor(props:any) {
     super(props);
     this.getSelectedIndex = this.getSelectedIndex.bind(this);
@@ -20,7 +20,7 @@ class NavBar extends Component {
   }
 
   render() {
-    const { handleNav, showNav, channels } = this.props;
+    const { handleNav, channels } = this.props;
     const items = channels.map(item => {
       const icon = <FontIcon className="material-icons">{item.private ? 'face' : 'group_work' }</FontIcon>;
       const route = `/channel/${item.id}`;
@@ -30,28 +30,17 @@ class NavBar extends Component {
       );
     });
     return (
-      <LeftNav ref="nav"
-        docked={false}
-        open={showNav}
-        onRequestChange={open => handleNav(open)}
-        >
-        <List>
-          {items}
-        </List>
-      </LeftNav>
+      <List>
+        {items}
+      </List>
     );
   }
 }
 
-NavBar.propTypes = {
-  showNav: PropTypes.bool,
+ChannelList.propTypes = {
   channels: PropTypes.array,
   handleNav: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
 };
 
-NavBar.defaultProps = {
-  showNav: false,
-};
-
-export default NavBar;
+export default ChannelList;

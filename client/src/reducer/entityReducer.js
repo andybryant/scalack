@@ -13,7 +13,7 @@ import {
 export const entityReducer = handleActions({
   // $FlowFixMe - computed keys not supported by flow yet
   [CHANNEL_SET]: (state: Entities, action: any) => {
-    const messages = {};
+    const messages = Object.assign({}, state.messages);
     const channels = action.payload;
     channels.forEach(channel => {
       messages[channel.id] = state.messages[channel.id] || [];
