@@ -1,5 +1,6 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
+import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { channelSelector } from '../selector';
 import * as actions from '../action';
@@ -26,6 +27,14 @@ class ChannelPage extends Component {
     };
   }
 
+  componentDidUpdate() {
+    const { channelMessages: { messages } } = this.props;
+    if (messages.length > 0) {
+      const node = ReactDOM.findDOMNode(this.refs.messages);
+      node.scrollTop = node.scrollHeight;
+    }
+  }
+
   handleChange(event) {
     const message = event.target.value;
     this.setState({ message });
@@ -44,7 +53,7 @@ class ChannelPage extends Component {
     return (
       <div className="ChannelPage container">
         <div className="title">{channel.name ? channel.name : 'Private'}</div>
-        <div className="messages">
+        <div className="messages" ref="messages">
           {msg}
         </div>
         <TextField

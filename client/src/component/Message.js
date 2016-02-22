@@ -1,5 +1,6 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
+import MDReactComponent from 'markdown-react-js';
 import moment from 'moment';
 
 const propTypes = {
@@ -19,7 +20,7 @@ class Message extends Component {
       <div className="Message">
         <div className="sender">{sender}</div>
         <div className="timestamp">{ moment(timestamp).format('LT') }</div>
-        <div className="text">{text}</div>
+        <div className="text"><MDReactComponent text={text} /></div>
       </div>
     );
   }
