@@ -6,7 +6,7 @@ import play.api.libs.json._
 
 package websocket {
 
-  import actors.user.UsersActor
+  import actors.user.{ActiveData, UsersActor}
   import model._
   import utils.JsonSerializer
 
@@ -46,14 +46,14 @@ package websocket {
         stay
       case Event(msg @ LoginSuccessful(userRef, userId, _), Unauthenticated)  =>
         send(msg)
-        goto(Authenticated) using UserDetails(userRef, userId)
+        goto(Authenticated) using UserDetails(userRef, userId, None)
       case Event(msg @ LoginFailed, Unauthenticated) =>
         send(msg)
         stay
     }
 
     when(Authenticated) {
-      case Event(msg: JsObject, UserDetails(userRef, userId)) =>
+      case Event(msg: JsObject, UserDetails(userRef, userId, _)) =>
         log.info("Received client message in Authenticated {}", msg)
         val msgType: String = (msg \ "type").as[String]
         msgType match {
@@ -68,12 +68,19 @@ package websocket {
             }
         }
         stay
-      case Event(channelsMsg @ ChannelSet(_), _) =>
-        send(channelsMsg)
-        stay
       case Event(usersMsg @ UserSet(_), _) =>
         send(usersMsg)
         stay
+      case Event(channelsMsg @ ChannelSet(channels), data @ UserDetails(userRef, userId, maybeOldChannels)) =>
+        maybeOldChannels match {
+          case Some(oldChannels) =>
+            val newChannels = channels.diff(oldChannels)
+            newChannels.foreach(ChannelsActor.channelsActor ! RequestMessageHistory(_))
+          case None =>
+            channels.foreach(ChannelsActor.channelsActor ! RequestMessageHistory(_))
+        }
+        send(channelsMsg)
+        stay using UserDetails(userRef, userId, Some(channels))
       case Event(msg @ MessageHistory(_, _), _) =>
         send(msg)
         stay
@@ -107,7 +114,7 @@ package websocket {
 
   sealed trait SessionData
   case object Unauthenticated extends SessionData
-  case class UserDetails(userRef: ActorRef, userId: String) extends SessionData
+  case class UserDetails(userRef: ActorRef, userId: String, channels: Option[Set[Channel]]) extends SessionData
 
 }
 

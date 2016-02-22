@@ -61,15 +61,13 @@ class App extends Component {
     return (
       <div className="main-content">
         <Header {...this.props} />
-        <div className="container">
+        <div className="container-fluid">
           <div className="row">
-            <div className="col-lg-3">
-              <ChannelList
-                handleNav={this.handleNav}
-                history={history}
-                channels={channels}
-                />
-            </div>
+            <ChannelList
+              handleNav={this.handleNav}
+              history={history}
+              channels={channels}
+              />
             <div className="col-lg-9">
               {this.renderErrorMessage()}
               {children}

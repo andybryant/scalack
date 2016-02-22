@@ -19,11 +19,12 @@ class ChannelActor(id: String) extends Actor with ActorLogging {
     case message @ SubscribeChannel(_) =>
       context.watch(sender)
       subscribers += sender
-      log.debug("Sending history {} to {}", messageHistory, sender)
-      sender ! MessageHistory(id, messageHistory.toSeq)
     case message @ UnsubscribeChannel(_) =>
       context.unwatch(sender)
       subscribers -= sender
+    case RequestMessageHistory(_) =>
+      log.debug("Sending history {} to {}", messageHistory, sender)
+      sender ! MessageHistory(id, messageHistory.toSeq)
     case message @ PostMessage(_, _, _) =>
       val id = idGenerator.next()
       val publishMsg: PublishMessage = PublishMessage(id, message)
@@ -65,6 +66,11 @@ class ChannelsActor extends Actor with ActorLogging {
       context.child(id).foreach {
         _ forward message
       }
+    case message @ RequestMessageHistory(channel) =>
+      val id = channel.channelId
+      context.child(id).foreach {
+        _ forward message
+      }
     case message @ UnsubscribeChannel(channel) =>
       val id = channel.channelId
       context.child(id).foreach {
@@ -98,6 +104,7 @@ case class PublicChannel(channelId: String, name: String) extends Channel
 case class PrivateChannel(channelId: String, exclusiveUserIds: Set[String]) extends Channel
 
 
+case class RequestMessageHistory(channel: Channel)
 case class SubscribeChannel(channel: Channel)
 case class UnsubscribeChannel(channel: Channel)
 case object SubscribeChannelList

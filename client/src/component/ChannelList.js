@@ -1,6 +1,7 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
 import { List, ListItem, FontIcon } from 'material-ui/lib';
+import Colors from 'material-ui/lib/styles/colors';
 
 class ChannelList extends Component {
   constructor(props:any) {
@@ -21,6 +22,9 @@ class ChannelList extends Component {
 
   render() {
     const { handleNav, channels } = this.props;
+    const listStyle = {
+      backgroundColor: Colors.deepOrange50,
+    };
     const items = channels.map(item => {
       const icon = <FontIcon className="material-icons">{item.private ? 'face' : 'group_work' }</FontIcon>;
       const route = `/channel/${item.id}`;
@@ -30,9 +34,11 @@ class ChannelList extends Component {
       );
     });
     return (
-      <List>
-        {items}
-      </List>
+      <div className="col-lg-3 ChannelList">
+        <List style={listStyle}>
+          {items}
+        </List>
+      </div>
     );
   }
 }
