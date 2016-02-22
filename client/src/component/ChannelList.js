@@ -21,16 +21,28 @@ class ChannelList extends Component {
   }
 
   render() {
-    const { handleNav, channels } = this.props;
+    const { handleNav, channels, messages } = this.props;
     const listStyle = {
       backgroundColor: Colors.deepOrange50,
     };
+    const itemStyle = {
+      color: Colors.indigo900,
+      fontWeight: 'bold',
+    };
     const items = channels.map(item => {
-      const icon = <FontIcon className="material-icons">{item.private ? 'face' : 'group_work' }</FontIcon>;
+      const icon = <FontIcon className="material-icons" color={Colors.indigo900}>{item.private ? 'face' : 'group_work' }</FontIcon>;
+      const rightIcon = <div>{messages[item.id].unread}</div>;
       const route = `/channel/${item.id}`;
       const clickHandler = () => { handleNav(false, route); };
       return (
-        <ListItem key={item.id} primaryText={item.name} leftIcon={icon} onTouchTap={clickHandler} />
+        <ListItem
+          key={item.id}
+          primaryText={item.name}
+          leftIcon={icon}
+          rightIcon={rightIcon}
+          onTouchTap={clickHandler}
+          style={itemStyle}
+          />
       );
     });
     return (
@@ -47,6 +59,7 @@ ChannelList.propTypes = {
   channels: PropTypes.array,
   handleNav: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
+  messages: PropTypes.object.isRequired,
 };
 
 export default ChannelList;

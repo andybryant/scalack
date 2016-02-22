@@ -57,7 +57,7 @@ class App extends Component {
   }
 
   render() {
-    const { children, history, channels } = this.props;
+    const { children, history, channels, messages } = this.props;
     return (
       <div className="main-content">
         <Header {...this.props} />
@@ -67,6 +67,7 @@ class App extends Component {
               handleNav={this.handleNav}
               history={history}
               channels={channels}
+              messages={messages}
               />
             <div className="col-lg-9">
               {this.renderErrorMessage()}
@@ -94,6 +95,7 @@ App.propTypes = {
   // Injected by React Router
   children: PropTypes.node,
   history: PropTypes.object.isRequired,
+  messages: PropTypes.object.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

@@ -12,7 +12,7 @@ const propTypes = {
   channels: PropTypes.array.isRequired,
   params: PropTypes.object.isRequired,
   messages: PropTypes.object.isRequired,
-  channelMessages: PropTypes.array.isRequired,
+  channelMessages: PropTypes.object.isRequired,
   postMessage: PropTypes.func.isRequired,
 };
 
@@ -38,9 +38,9 @@ class ChannelPage extends Component {
   }
 
   render() {
-    const { channels, channelMessages, params: { channelId } } = this.props;
+    const { channels, channelMessages: { messages }, params: { channelId } } = this.props;
     const channel = channels.find(ch => ch.id === channelId);
-    const msg = channelMessages.map(message => <Message {...message} />);
+    const msg = messages.map(message => <Message {...message} />);
     return (
       <div className="ChannelPage container">
         <div className="title">{channel.name ? channel.name : 'Private'}</div>

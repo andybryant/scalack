@@ -34,15 +34,19 @@ function addChannelNames(channels, auth, contacts) {
   }).sort(channelCompare);
 }
 
-function addSenders(messages, contacts) {
+function addSenders({ unread, messages }, contacts) {
   const contactMap = toIdentityMap(contacts);
-  return messages.map(message => {
+  const enrichedMessages = messages.map(message => {
     const contact = contactMap[message.senderId];
     return ({
       ...message,
       sender: contact ? contact.name : 'Unknown',
     });
   });
+  return {
+    unread,
+    messages: enrichedMessages,
+  };
 }
 
 export const appSelector = createSelector(

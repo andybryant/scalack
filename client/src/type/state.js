@@ -8,10 +8,15 @@ export type LoginDetails = {
   loggedIn: boolean,
 };
 
+export type ChannelMessages = {
+  unread: number,
+  messages: Array<Message>,
+}
+
 export type Entities = {
   contacts: Array<Contact>,
   channels: Array<Channel>,
-  messages: { [channelId:string]: Array<Message> }
+  messages: { [channelId:string]: ChannelMessages }
 };
 
 export type State = {
