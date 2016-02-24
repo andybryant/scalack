@@ -59,7 +59,7 @@ class App extends Component {
   render() {
     const { children, history, channels, messages } = this.props;
     return (
-      <div className="main-content">
+      <div className="App">
         <Header {...this.props} />
         <div className="container-fluid">
           <div className="row">
@@ -69,13 +69,13 @@ class App extends Component {
               channels={channels}
               messages={messages}
               />
-            <div className="col-lg-9">
+            <div className="main-body col-lg-9">
               {this.renderErrorMessage()}
               {children}
+              <Footer />
             </div>
           </div>
         </div>
-        <Footer />
       </div>
     );
   }

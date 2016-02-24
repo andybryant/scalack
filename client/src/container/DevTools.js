@@ -8,7 +8,7 @@ export default createDevTools(
   <DockMonitor toggleVisibilityKey="ctrl-h"
                changePositionKey="ctrl-w"
                changeMonitorKey="ctrl-m"
-               defaultIsVisible="false">
+               defaultIsVisible={false}>
     <LogMonitor />
     <SliderMonitor />
   </DockMonitor>

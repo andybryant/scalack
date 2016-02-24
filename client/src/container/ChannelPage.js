@@ -49,7 +49,12 @@ class ChannelPage extends Component {
   render() {
     const { channels, channelMessages: { messages }, params: { channelId } } = this.props;
     const channel = channels.find(ch => ch.id === channelId);
-    const msg = messages.map(message => <Message {...message} />);
+    let lastSender;
+    const msg = messages.map(message => {
+      const sameSender = message.sender === lastSender;
+      lastSender = message.sender;
+      return <Message sameSender={sameSender} {...message} />;
+    });
     return (
       <div className="ChannelPage container">
         <div className="title">{channel.name ? channel.name : 'Private'}</div>

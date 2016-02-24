@@ -28,12 +28,14 @@ const initialState: State = {
       { id: 'Ch3', name: 'Mark', private: true, contactIds: ['AB124', 'AB125'] },
     ],
     messages: {
-      'Ch1': [
-        { id: '123', senderId: 'AB123', channelId: 'Ch1', timestamp: 123456, text: 'yoyoyo'},
-        { id: '124', senderId: 'AB125', channelId: 'Ch1', timestamp: 123458, text: 'hey hey'},
-      ],
-      'Ch2': [],
-      'Ch3': [],
+      'Ch1': {
+        unread: 0,
+        messages: [
+          { id: '123', senderId: 'AB123', channelId: 'Ch1', timestamp: 123456, text: 'yoyoyo'},
+          { id: '124', senderId: 'AB125', channelId: 'Ch1', timestamp: 123458, text: 'hey hey'},
+        ]},
+      'Ch2': { unread: 0, messages: []},
+      'Ch3': { unread: 0, messages: []},
     },
   },
 };
