@@ -1,6 +1,5 @@
-require('normalize.css');
-require('!css!sass!styles/Root.scss');
-
+import 'normalize.css';
+import 'styles/Root.scss';
 import React, { Component, PropTypes } from 'react';
 import { Provider } from 'react-redux';
 import { ReduxRouter } from 'redux-router';

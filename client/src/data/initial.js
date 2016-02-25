@@ -12,6 +12,9 @@ const initialState: State = {
     messages: {},
   },
   router: {
+    location: {
+      pathname: '/',
+    },
     params: {},
   },
 };
