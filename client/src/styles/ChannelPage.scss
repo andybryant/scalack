@@ -1,15 +1,15 @@
 .ChannelPage {
-
+  
   .title {
     margin-top: 16px;
     margin-bottom: 16px;
     font-size: 24px;
     font-weight: bold;
-    color: #1a237e;
+    color: $indigo900;
   }    
 
   .messages {
-    overflow: scroll;
+    overflow-y: auto;
   }
 
   .message-input {

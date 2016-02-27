@@ -6,9 +6,9 @@ module.exports = {
   spacing: Spacing,
   fontFamily: 'Roboto, sans-serif',
   palette: {
-    primary1Color: Colors.deepOrange600,
-    primary2Color: Colors.deepOrange700,
-    primary3Color: Colors.deepOrange800,
+    primary1Color: Colors.lightBlue600,
+    primary2Color: Colors.lightBlue700,
+    primary3Color: Colors.lightBlue800,
     accent1Color: '#5A95F5',
     accent2Color: Colors.grey100,
     accent3Color: Colors.grey500,

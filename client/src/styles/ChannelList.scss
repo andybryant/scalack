@@ -1,4 +1,19 @@
 .ChannelList {
-	background-color: #fbe9e7;
-  height: 100vh;
+	background-color: $lightBlueA100;
+  height: 90vh;
+
+  .count {
+    &.none {
+      display: none;
+    }
+
+    background-color: $orange900;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    line-height: 20px;
+    height: 20px;
+    width: 30px;
+    @include rounded(10px);
+  }
 }

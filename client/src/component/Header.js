@@ -8,6 +8,7 @@ import {
   MenuItem,
   TextField,
 } from 'material-ui/lib';
+import Colors from 'material-ui/lib/styles/colors';
 
 const propTypes = {
   login: PropTypes.func.isRequired,
@@ -47,10 +48,10 @@ class Header extends Component {
     );
     const rightIcon = loggedIn ? (
         <div className="right-icon">
-          <span className="user-name">{userName}</span>
+          <h5 className="user-name">{userName}</h5>
           <IconMenu iconButtonElement={
             <IconButton>
-              <FontIcon className="material-icons">more_vert</FontIcon>
+              <FontIcon className="material-icons" color={Colors.white}>more_vert</FontIcon>
             </IconButton>}
             targetOrigin={{horizontal: 'right', vertical: 'top'}}
             anchorOrigin={{horizontal: 'right', vertical: 'top'}}

@@ -2,6 +2,7 @@
 import React, { Component, PropTypes } from 'react';
 import { List, ListItem, FontIcon } from 'material-ui/lib';
 import Colors from 'material-ui/lib/styles/colors';
+import classnames from 'classnames';
 
 class ChannelList extends Component {
   constructor(props:any) {
@@ -23,22 +24,34 @@ class ChannelList extends Component {
   render() {
     const { handleNav, channels, messages } = this.props;
     const listStyle = {
-      backgroundColor: Colors.deepOrange50,
+      backgroundColor: Colors.lightBlueA100,
     };
     const itemStyle = {
       color: Colors.indigo900,
       fontWeight: 'bold',
     };
     const items = channels.map(item => {
-      const icon = <FontIcon className="material-icons" color={Colors.indigo900}>{item.private ? 'face' : 'group_work' }</FontIcon>;
-      const rightIcon = <div>{messages[item.id].unread}</div>;
+      const { unread } = messages[item.id];
+      const countClasses = classnames(
+        'count',
+        { 'none': unread === 0 },
+        { 'non-zero': unread > 0 },
+      );
+      const leftIcon = (
+        <FontIcon
+          className="material-icons"
+          color={Colors.indigo900}>
+          {item.private ? 'face' : 'group_work' }
+        </FontIcon>
+      );
+      const rightIcon = <div><div className={countClasses}>{unread}</div></div>;
       const route = `/channel/${item.id}`;
       const clickHandler = () => { handleNav(false, route); };
       return (
         <ListItem
           key={item.id}
           primaryText={item.name}
-          leftIcon={icon}
+          leftIcon={leftIcon}
           rightIcon={rightIcon}
           onTouchTap={clickHandler}
           style={itemStyle}
