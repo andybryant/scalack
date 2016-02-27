@@ -14,6 +14,7 @@ export type ChannelMessages = {
 }
 
 export type Entities = {
+  currentChannelId: ?string,
   contacts: Array<Contact>,
   channels: Array<Channel>,
   messages: { [channelId:string]: ChannelMessages }

@@ -43,7 +43,13 @@ export const entityReducer = handleActions({
   [ROUTER_DID_CHANGE]: (state: Entities, action: any) => {
     const { params } = action.payload;
     if (params && params.channelId) {
-      return update(state, { messages: { [params.channelId]: { unread: 0 } } });
+      return update(state, {
+        messages: {
+          [params.channelId]: { unread: 0 },
+          [state.currentChannelId]: { unread: 0 },
+        },
+        currentChannelId: params.channelId,
+      });
     }
     return state;
   },

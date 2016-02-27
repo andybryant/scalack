@@ -34,7 +34,7 @@ function addChannelNames(channels, auth, contacts) {
   }).sort(channelCompare);
 }
 
-function addSenders({ unread, messages }, contacts) {
+function enrichMessages({ unread, messages }, contacts) {
   const contactMap = toIdentityMap(contacts);
   const enrichedMessages = messages.map(message => {
     const contact = contactMap[message.senderId];
@@ -49,10 +49,22 @@ function addSenders({ unread, messages }, contacts) {
   };
 }
 
+function calcUnread(channelId, channelMessages) {
+  const unread = {};
+  for (const id in channelMessages) {
+    if (channelMessages.hasOwnProperty(id)) {
+      unread[id] = channelId === id ? 0 : channelMessages[id].unread;
+    }
+  }
+  return unread;
+}
+
 export const appSelector = createSelector(
+  channelIdSelector,
   entitiesSelector,
   authSelector,
-  (entities, auth) => ({
+  (channelId, entities, auth) => ({
+    unread: calcUnread(channelId, entities.messages),
     ...entities,
     ...auth,
     ...nav,
@@ -65,7 +77,7 @@ export const channelSelector = createSelector(
   entitiesSelector,
   authSelector,
   (channelId, entities, auth) => ({
-    channelMessages: addSenders(entities.messages[channelId], entities.contacts),
+    channelMessages: enrichMessages(entities.messages[channelId], entities.contacts),
     ...entities,
     ...auth,
     ...nav,

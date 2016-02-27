@@ -17,6 +17,7 @@ const initialState: State = {
     },
   },
   entities: {
+    currentChannelId: undefined,
     contacts: [
       { id: 'AB123', name: 'Max' },
       { id: 'AB124', name: 'Mark' },

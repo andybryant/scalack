@@ -22,7 +22,7 @@ class ChannelList extends Component {
   }
 
   render() {
-    const { handleNav, channels, messages } = this.props;
+    const { handleNav, channels, unread } = this.props;
     const listStyle = {
       backgroundColor: Colors.lightBlueA100,
     };
@@ -31,11 +31,11 @@ class ChannelList extends Component {
       fontWeight: 'bold',
     };
     const items = channels.map(item => {
-      const { unread } = messages[item.id];
+      const count = unread[item.id];
       const countClasses = classnames(
         'count',
-        { 'none': unread === 0 },
-        { 'non-zero': unread > 0 },
+        { 'none': count === 0 },
+        { 'non-zero': count > 0 },
       );
       const leftIcon = (
         <FontIcon
@@ -44,7 +44,7 @@ class ChannelList extends Component {
           {item.private ? 'face' : 'group_work' }
         </FontIcon>
       );
-      const rightIcon = <div><div className={countClasses}>{unread}</div></div>;
+      const rightIcon = <div><div className={countClasses}>{count}</div></div>;
       const route = `/channel/${item.id}`;
       const clickHandler = () => { handleNav(false, route); };
       return (
@@ -72,7 +72,7 @@ ChannelList.propTypes = {
   channels: PropTypes.array,
   handleNav: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
-  messages: PropTypes.object.isRequired,
+  unread: PropTypes.object.isRequired,
 };
 
 export default ChannelList;

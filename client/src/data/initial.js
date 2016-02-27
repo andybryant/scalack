@@ -7,6 +7,7 @@ const initialState: State = {
   },
   errorMessage: null,
   entities: {
+    currentChannelId: undefined,
     contacts: [],
     channels: [],
     messages: {},
