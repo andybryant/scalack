@@ -37,8 +37,16 @@
     }
   }  
 
-  .menu {
+  .operations {
     position: absolute;
     right: 10px;
+    top: -12px;
+    display: none;
+  }
+
+  &:hover {
+    .operations {
+      display: inline-block;
+    }
   }
 }

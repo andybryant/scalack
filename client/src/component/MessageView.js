@@ -53,7 +53,7 @@ class MessageView extends Component {
         <div className="operations">
           <IconMenu iconButtonElement={
             <IconButton>
-              <FontIcon className="material-icons">more_vert</FontIcon>
+              <FontIcon className="material-icons">more_horiz</FontIcon>
             </IconButton>}
             targetOrigin={{horizontal: 'right', vertical: 'top'}}
             anchorOrigin={{horizontal: 'right', vertical: 'top'}}
