@@ -32,7 +32,10 @@ export const entityReducer = handleActions({
   [PUBLISH_MESSAGE]: (state: Entities, action: any) => {
     const channelId = action.payload.channelId;
     const index = state.messages[channelId].messages.length;
-    const unread = state.messages[channelId].unread + 1;
+    if (channelId !== state.currentChannelId) {
+      state.messages[channelId].unread += 1;
+    }
+    const unread = state.messages[channelId].unread;
     return update(state, { messages: { [channelId]: { unread, messages: { [index]: action.payload } } } });
   },
   [MESSAGE_HISTORY]: (state: Entities, action: any) => {
@@ -46,7 +49,6 @@ export const entityReducer = handleActions({
       return update(state, {
         messages: {
           [params.channelId]: { unread: 0 },
-          [state.currentChannelId]: { unread: 0 },
         },
         currentChannelId: params.channelId,
       });

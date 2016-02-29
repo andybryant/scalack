@@ -4,9 +4,9 @@ import { createSelector } from 'reselect';
 import * as nav from '../util/navigation';
 import channelCompare from '../model/channelCompare';
 
-const channelIdSelector: (state: State) => string = state => state.router.params.channelId;
 const authSelector: (state: State) => LoginDetails = state => state.auth;
 const entitiesSelector: (state: State) => Entities = state => state.entities;
+const routerSelector: (state: State) => Entities = state => state.router;
 
 function toIdentityMap(entities) {
   const map = {};
@@ -34,7 +34,9 @@ function addChannelNames(channels, auth, contacts) {
   }).sort(channelCompare);
 }
 
-function enrichMessages({ unread, messages }, contacts) {
+function enrichMessages(channelMessages, contacts, router) {
+  const { params: { channelId } } = router;
+  const { unread, messages } = channelMessages[channelId];
   const contactMap = toIdentityMap(contacts);
   const enrichedMessages = messages.map(message => {
     const contact = contactMap[message.senderId];
@@ -49,7 +51,8 @@ function enrichMessages({ unread, messages }, contacts) {
   };
 }
 
-function calcUnread(channelId, channelMessages) {
+function calcUnread(channelMessages, router) {
+  const { params: { channelId } } = router;
   const unread = {};
   for (const id in channelMessages) {
     if (channelMessages.hasOwnProperty(id)) {
@@ -60,27 +63,29 @@ function calcUnread(channelId, channelMessages) {
 }
 
 export const appSelector = createSelector(
-  channelIdSelector,
   entitiesSelector,
   authSelector,
-  (channelId, entities, auth) => ({
-    unread: calcUnread(channelId, entities.messages),
+  routerSelector,
+  (entities, auth, router) => ({
+    unread: calcUnread(entities.messages, router),
     ...entities,
     ...auth,
     ...nav,
+    router,
     channels: addChannelNames(entities.channels, auth, entities.contacts),
   })
 );
 
 export const channelSelector = createSelector(
-  channelIdSelector,
   entitiesSelector,
   authSelector,
-  (channelId, entities, auth) => ({
-    channelMessages: enrichMessages(entities.messages[channelId], entities.contacts),
+  routerSelector,
+  (entities, auth, router) => ({
+    channelMessages: enrichMessages(entities.messages, entities.contacts, router),
     ...entities,
     ...auth,
     ...nav,
+    router,
     channels: addChannelNames(entities.channels, auth, entities.contacts),
   })
 );

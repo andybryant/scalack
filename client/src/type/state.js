@@ -11,7 +11,7 @@ export type LoginDetails = {
 export type ChannelMessages = {
   unread: number,
   messages: Array<Message>,
-}
+};
 
 export type Entities = {
   currentChannelId: ?string,

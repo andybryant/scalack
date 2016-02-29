@@ -1,0 +1,44 @@
+.MessageView {
+  position: relative;
+
+  &.same-sender {
+    .sender {
+      display: none;
+    }
+
+    .timestamp {
+      display: none;
+    }
+  }
+
+  .sender {
+    display: inline-block;
+    margin-left: 8px;
+    margin-right: 4px;
+    margin-top: 8px;
+    color: $indigo900;
+    font-size: 14px;
+    font-weight: bold;
+  }
+
+  .timestamp {
+    display: inline-block;
+    color: $blueGrey300;  
+    font-size: 13px;
+  }
+
+  .text {
+    margin-left: 8px;
+    margin-right: 4px;
+    font-size: 14px;
+
+    p {
+      margin-bottom: 0px;
+    }
+  }  
+
+  .menu {
+    position: absolute;
+    right: 10px;
+  }
+}

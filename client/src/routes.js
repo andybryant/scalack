@@ -6,6 +6,8 @@ import ChannelPage from './container/ChannelPage';
 export default (
   <Route path="/" component={App}>
     <Route path="/channel/:channelId"
-           component={ChannelPage} />
+           component={ChannelPage} >
+      <Route path="/channel/:channelId/:messageId" />
+    </Route>
   </Route>
 );

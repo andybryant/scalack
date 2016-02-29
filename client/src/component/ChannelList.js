@@ -46,7 +46,7 @@ class ChannelList extends Component {
       );
       const rightIcon = <div><div className={countClasses}>{count}</div></div>;
       const route = `/channel/${item.id}`;
-      const clickHandler = () => { handleNav(false, route); };
+      const clickHandler = () => { handleNav(route); };
       return (
         <ListItem
           key={item.id}

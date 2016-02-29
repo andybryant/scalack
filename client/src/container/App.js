@@ -32,7 +32,7 @@ class App extends Component {
     event.preventDefault();
   }
 
-  handleNav(open, url) {
+  handleNav(url) {
     if (url) {
       gotoUrl(this.props.history, url);
     }

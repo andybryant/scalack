@@ -1,32 +1,26 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
-import MDReactComponent from 'markdown-react-js';
-import moment from 'moment';
+import MessageEdit from './MessageEdit';
+import MessageView from './MessageView';
 import classnames from 'classnames';
 
 const propTypes = {
-  text: PropTypes.string.isRequired,
-  timestamp: PropTypes.number,
-  sender: PropTypes.string,
-  sameSender: PropTypes.bool,
+  router: PropTypes.object.isRequired,
+  messageId: PropTypes.string.isRequired,
 };
 
 class Message extends Component {
-  constructor(props) {
-    super(props);
-  }
 
   render(): any {
-    const { text, timestamp, sender, sameSender } = this.props;
-    const messageClasses = classnames(
+    const { router, messageId } = this.props;
+    const editing = (router.params.messageId === messageId);
+    const classes = classnames(
       'Message',
-      { 'same-sender': sameSender },
+      editing ? 'edit' : 'view'
     );
     return (
-      <div className={messageClasses}>
-        <div className="sender">{sender}</div>
-        <div className="timestamp">{ moment(timestamp).format('LT') }</div>
-        <div className="text"><MDReactComponent text={text} /></div>
+      <div className={classes}>
+        {editing ? <MessageEdit {...this.props} /> : <MessageView {...this.props} />}
       </div>
     );
   }
