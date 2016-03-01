@@ -12,5 +12,7 @@ export {
 
 export {
   postMessage,
+  updateMessage,
+  deleteMessage,
 } from './messageActions';
 

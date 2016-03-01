@@ -2,10 +2,16 @@
 import { log } from '../util';
 import { createAction } from 'redux-actions';
 
+const defaultMeta = {
+  local: false,
+  synced: true,
+  toServer: false,
+};
+
 export default function thunkCreator(dispatch: any): any {
   const errorCreator = createAction('error');
   return (actionJson, send) => {
-    const action = JSON.parse(actionJson);
+    const action = Object.assign({ meta: defaultMeta }, JSON.parse(actionJson));
     log.debug('Received', action);
     const type = action.type;
     switch (type) {
@@ -21,6 +27,8 @@ export default function thunkCreator(dispatch: any): any {
     case 'users':
     case 'messageHistory':
     case 'publishMessage':
+    case 'updateMessage':
+    case 'deleteMessage':
       dispatch(action);
       break;
     default:

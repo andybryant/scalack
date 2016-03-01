@@ -17,7 +17,9 @@ package websocket {
   class WebSocketSessionActor(out: ActorRef) extends Actor with FSM[SessionState, SessionData] {
     val serializer: JsonSerializer = new JsonSerializer
     implicit val loginReads: Reads[Login] = Json.reads[Login]
-    implicit val messageReads: Reads[PostedMessage] = Json.reads[PostedMessage]
+    implicit val postMessageReads: Reads[PostedMessage] = Json.reads[PostedMessage]
+    implicit val updateMessageReads: Reads[UpdateMessage] = Json.reads[UpdateMessage]
+    implicit val deleteMessageReads: Reads[DeleteMessage] = Json.reads[DeleteMessage]
 
     startWith(Initial, Unauthenticated)
 
@@ -63,8 +65,19 @@ package websocket {
             UsersActor.usersActor ! SubscribeUserList
           case "postMessage" =>
             val payload = (msg \ "payload").validate[PostedMessage]
+            withPayload(payload) { msg =>
+              val PostedMessage(channelId, clientMessageId, text) = msg
+              ChannelsActor.channelsActor ! PostMessage(channelId, Sender(self, userId), clientMessageId, text)
+            }
+          case "updateMessage" =>
+            val payload = (msg \ "payload").validate[UpdateMessage]
             withPayload(payload) {
-              ChannelsActor.channelsActor ! PostMessage(Sender(self, userId), _)
+              ChannelsActor.channelsActor ! _
+            }
+          case "deleteMessage" =>
+            val payload = (msg \ "payload").validate[DeleteMessage]
+            withPayload(payload) {
+              ChannelsActor.channelsActor ! _
             }
         }
         stay
@@ -84,7 +97,13 @@ package websocket {
       case Event(msg @ MessageHistory(_, _), _) =>
         send(msg)
         stay
-      case Event(msg @ PublishMessage(_, _), _) =>
+      case Event(msg @ PublishMessage(_, _, _, _, _, _, _), _) =>
+        send(msg)
+        stay
+      case Event(msg @ UpdateMessage(_, _, _), _) =>
+        send(msg)
+        stay
+      case Event(msg @ DeleteMessage(_, _), _) =>
         send(msg)
         stay
       case unknown =>
@@ -124,6 +143,8 @@ package websocket {
 
 case class Sender(clientRef: ActorRef, user: String)
 case class PostMessage(
+      channelId: String,
       sender: Sender,
-      message: PostedMessage,
+      clientMessageId: String,
+      text: String,
       timestamp: Long = System.currentTimeMillis())

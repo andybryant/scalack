@@ -25,6 +25,8 @@ const propTypes = {
 class ChannelPage extends Component {
   constructor(props) {
     super(props);
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.focusOnInput = this.focusOnInput.bind(this);
     this.handleChange = this.handleChange.bind(this);
     this.handleSendMessage = this.handleSendMessage.bind(this);
     this.handleEditLastMessage = this.handleEditLastMessage.bind(this);
@@ -36,7 +38,8 @@ class ChannelPage extends Component {
 
   componentWillMount() {
     this.mousetrap
-      .bind('up', () => { this.handleEditLastMessage(); });
+      .bind('up', () => { this.handleEditLastMessage(); })
+      .bind('/', () => { this.focusOnInput(); return false; });
   }
 
   componentDidUpdate() {
@@ -45,6 +48,23 @@ class ChannelPage extends Component {
       const node = ReactDOM.findDOMNode(this.refs.messages);
       node.scrollTop = node.scrollHeight;
     }
+  }
+
+  onKeyDown(evt:any) {
+    if (evt.keyCode === 38 ) { // up
+      if (!this.state.message) {
+        evt.preventDefault();
+        this.handleEditLastMessage();
+      }
+    } else if (evt.keyCode === 27) { // escape
+      evt.preventDefault();
+      this.setState({ message: '' });
+      document.activeElement.blur();
+    }
+  }
+
+  focusOnInput() {
+    this.refs.messageField.focus();
   }
 
   handleEditLastMessage() {
@@ -93,6 +113,7 @@ class ChannelPage extends Component {
           ref="messageField"
           hintText="New message"
           fullWidth
+          onKeyDown={this.onKeyDown}
           onChange={this.handleChange}
           onEnterKeyDown={this.handleSendMessage}
           value={this.state.message}

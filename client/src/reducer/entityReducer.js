@@ -1,12 +1,13 @@
 /* @flow  */
 import type { ChannelMessages, Entities } from '../type/state';
 import { handleActions } from 'redux-actions';
-// import equal from 'deep-equal';
-import update from 'immupdate';
+import update from 'react-addons-update';
 import {
   CHANNEL_SET,
   USER_SET,
   PUBLISH_MESSAGE,
+  UPDATE_MESSAGE,
+  DELETE_MESSAGE,
   MESSAGE_HISTORY,
 } from '../constants/ActionTypes';
 import { ROUTER_DID_CHANGE } from 'redux-router/lib/constants';
@@ -24,33 +25,63 @@ export const entityReducer = handleActions({
     channels.forEach(channel => {
       messages[channel.id] = state.messages[channel.id] || DEFAULT_MESSAGES;
     });
-    return update(state, { channels, messages });
+    return update(state, {$merge: { channels, messages }});
   },
   [USER_SET]: (state: Entities, action: any) => {
-    return update(state, { contacts: action.payload });
+    return update(state, { contacts: {$set: action.payload }});
   },
   [PUBLISH_MESSAGE]: (state: Entities, action: any) => {
     const channelId = action.payload.channelId;
-    const index = state.messages[channelId].messages.length;
+    let unread = state.messages[channelId].unread;
     if (channelId !== state.currentChannelId) {
-      state.messages[channelId].unread += 1;
+      unread += 1;
     }
-    const unread = state.messages[channelId].unread;
-    return update(state, { messages: { [channelId]: { unread, messages: { [index]: action.payload } } } });
+    return update(state, { messages: { [channelId]: {
+      unread: {$set: unread},
+      messages: {$push: [action.payload] },
+    }}});
+  },
+  [UPDATE_MESSAGE]: (state: Entities, action: any) => {
+    if (action.meta.local) return state;
+    const { messageId, channelId, text } = action.payload;
+    const { messages } = state.messages[channelId];
+    const index = messages.findIndex(msg => msg.messageId === messageId);
+    if (index >= 0) {
+      const updatedMessage = Object.assign({}, messages[index], { text, edited: true });
+      return update(state, { messages: { [channelId]: { messages: { [index]: {$set: updatedMessage}}}}});
+    }
+    return state;
+  },
+  [DELETE_MESSAGE]: (state: Entities, action: any) => {
+    if (action.meta.local) return state;
+    const { messageId, channelId } = action.payload;
+    const { messages } = state.messages[channelId];
+    let { unread } = state.messages[channelId];
+    const index = messages.findIndex(msg => msg.messageId === messageId);
+    if (index >= 0) {
+      if (unread > 0 && index >= (messages.length - unread)) {
+        unread -= 1;
+      }
+      return update(state, { messages: { [channelId]: {
+        messages: {$splice: [[index, 1]]},
+        unread: {$set: unread},
+      }}});
+    }
+    return state;
   },
   [MESSAGE_HISTORY]: (state: Entities, action: any) => {
     const { channelId, history } = action.payload;
     const channelMessages = { unread: history.length, messages: history };
-    return update(state, { messages: { [channelId]: channelMessages } });
+    return update(state, { messages: {$merge: { [channelId]: channelMessages }}});
   },
   [ROUTER_DID_CHANGE]: (state: Entities, action: any) => {
     const { params } = action.payload;
     if (params && params.channelId) {
       return update(state, {
         messages: {
-          [params.channelId]: { unread: 0 },
+          [params.channelId]: { unread: {$set: 0 }},
         },
-        currentChannelId: params.channelId,
+        currentChannelId: {$set: params.channelId},
       });
     }
     return state;

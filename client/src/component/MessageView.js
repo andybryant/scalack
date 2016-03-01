@@ -3,17 +3,16 @@ import React, { Component, PropTypes } from 'react';
 import MDReactComponent from 'markdown-react-js';
 import moment from 'moment';
 import classnames from 'classnames';
+import { FontIcon, IconButton } from 'material-ui/lib';
+import { Colors } from 'material-ui/lib/styles';
 import { gotoEditMessage } from '../util/navigation';
-import {
-  FontIcon,
-  IconButton,
-  IconMenu,
-  MenuItem,
-} from 'material-ui/lib';
 
 const propTypes = {
   channelId: PropTypes.string.isRequired,
   messageId: PropTypes.string.isRequired,
+  userId: PropTypes.string.isRequired,
+  edited: PropTypes.bool.isRequired,
+  senderId: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,
   timestamp: PropTypes.number,
   sender: PropTypes.string,
@@ -40,35 +39,45 @@ class MessageView extends Component {
   }
 
   render(): any {
-    const { text, timestamp, sender, sameSender } = this.props;
+    const { text, timestamp, sender, sameSender, userId, senderId, edited } = this.props;
     const messageClasses = classnames(
       'MessageView',
       { 'same-sender': sameSender },
+      { mine: userId === senderId },
+      { edited: edited },
     );
+    const iconStyle = {
+      fontSize: '12px',
+    };
     return (
       <div className={messageClasses}>
         <div className="sender">{sender}</div>
         <div className="timestamp">{ moment(timestamp).format('LT') }</div>
-        <div className="text"><MDReactComponent text={text} /></div>
+        <div className="text">
+          <MDReactComponent text={text} className="markdown-text" />
+          <span className="edit-label">(edited)</span>
+        </div>
         <div className="operations">
-          <IconMenu iconButtonElement={
-            <IconButton>
-              <FontIcon className="material-icons">more_horiz</FontIcon>
-            </IconButton>}
-            targetOrigin={{horizontal: 'right', vertical: 'top'}}
-            anchorOrigin={{horizontal: 'right', vertical: 'top'}}
-          >
-            <MenuItem
-              primaryText="Edit"
-              leftIcon={<FontIcon className="material-icons">mode_edit</FontIcon>}
-              onTouchTap={this.handleEdit}
-              />
-            <MenuItem
-              primaryText="Delete"
-              leftIcon={<FontIcon className="material-icons">delete</FontIcon>}
-              onTouchTap={this.handleDelete}
-              />
-          </IconMenu>
+          <IconButton onTouchTap={this.handleEdit} style={iconStyle}>
+            <FontIcon
+              className="material-icons"
+              style={iconStyle}
+              color={Colors.grey500}
+              hoverColor={Colors.green700}
+              >
+              mode_edit
+            </FontIcon>
+          </IconButton>
+          <IconButton onTouchTap={this.handleDelete} style={iconStyle}>
+            <FontIcon
+              className="material-icons"
+              style={iconStyle}
+              color={Colors.grey500}
+              hoverColor={Colors.red900}
+              >
+              delete
+            </FontIcon>
+          </IconButton>
         </div>
       </div>
     );
@@ -76,5 +85,8 @@ class MessageView extends Component {
 }
 
 MessageView.propTypes = propTypes;
+MessageView.defaultProps = {
+  edited: false,
+};
 
 export default MessageView;

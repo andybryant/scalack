@@ -25,4 +25,5 @@ export type Message = {
   channelId: string,
   text: string,
   timestamp: number,
+  edited?: boolean,
 };

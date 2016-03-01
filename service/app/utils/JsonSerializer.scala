@@ -59,25 +59,43 @@ class JsonSerializer {
             "history" -> JsArray(history.map(messageToJson(_, sessionActor)))
           )
         )
-      case msg @ PublishMessage(_, _) =>
+      case msg @ PublishMessage(_, _, _, _, _, _, _) =>
         Json.obj(
           "type" -> "publishMessage",
           "payload" -> messageToJson(msg, sessionActor)
         )
+      case msg @ UpdateMessage(channelId, messageId, text) =>
+        Json.obj(
+          "type" -> "updateMessage",
+          "payload" -> Json.obj(
+            "channelId" -> channelId,
+            "messageId" -> messageId,
+            "text" -> text
+          )
+        )
+      case msg @ DeleteMessage(channelId, messageId) =>
+        Json.obj(
+          "type" -> "deleteMessage",
+          "payload" -> Json.obj(
+            "channelId" -> channelId,
+            "messageId" -> messageId
+          )
+        )
+
     }
   }
 
   def messageToJson(message: PublishMessage, sessionActor: ActorRef): JsValue = {
-    val PublishMessage(messageId, PostMessage(
-        Sender(clientRef, user),
-        PostedMessage(clientMessageId, channelId, text), timestamp)) = message
+    val PublishMessage(channelId, messageId, Sender(clientRef, user),
+      clientMessageId, text, timestamp, edited) = message
     Json.obj(
       "messageId" -> messageId,
       "clientMessageId" -> (if (clientRef == sessionActor) clientMessageId else ""),
       "channelId" -> channelId,
       "senderId" -> user,
       "text" -> text,
-      "timestamp" -> timestamp
+      "timestamp" -> timestamp,
+      "edited" -> edited
     )
   }
 }

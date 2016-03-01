@@ -46,7 +46,13 @@ package user {
         val channelMsg = ChannelSet(filteredChannels)
         sessions.foreach(_ ! channelMsg)
         stay using ActiveData(sessions, Some(filteredChannels))
-      case Event(msg @ PublishMessage(_, _), ActiveData(sessions, _)) =>
+      case Event(msg @ PublishMessage(_, _, _, _, _, _, _), ActiveData(sessions, _)) =>
+        sessions.foreach(_ ! msg)
+        stay
+      case Event(msg @ UpdateMessage(_, _, _), ActiveData(sessions, _)) =>
+        sessions.foreach(_ ! msg)
+        stay
+      case Event(msg @ DeleteMessage(_, _), ActiveData(sessions, _)) =>
         sessions.foreach(_ ! msg)
         stay
     }

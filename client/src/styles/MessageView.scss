@@ -37,14 +37,39 @@
     }
   }  
 
-  .operations {
-    position: absolute;
-    right: 10px;
-    top: -12px;
+  .markdown-text {
+    display: inline-block;
+  }
+
+  .edit-label {
     display: none;
   }
 
-  &:hover {
+  &.edited {
+    .edit-label {
+      padding-left: 8px;
+      display: inline-block;
+      font-size: 12px;
+      color: $blueGrey300;    
+    }
+  }
+
+  .operations {
+    @include rounded(10px);
+    border: 1px solid $blueGrey300;
+    background-color: $blueGrey50;
+    position: absolute;
+    right: 10px;
+    top: 0px;
+    display: none;
+    z-index: 1000;
+
+    & > * {
+      vertical-align: middle;    
+    }
+  }
+
+  &:hover.mine {
     .operations {
       display: inline-block;
     }

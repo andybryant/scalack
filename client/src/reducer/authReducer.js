@@ -1,7 +1,7 @@
 /* @flow  */
 import type { LoginDetails } from '../type/state';
 import { handleActions } from 'redux-actions';
-import update from 'immupdate';
+import update from 'react-addons-update';
 import {
   LOGIN_SUCCESSFUL,
   LOGIN_FAILED,
@@ -11,9 +11,9 @@ import {
 export const authReducer = handleActions({
   [LOGIN_SUCCESSFUL]: (state: LoginDetails, action: any) => {
     const { userId, userName } = action.payload;
-    return update(state, { userId, userName, loggedIn: true });
+    return update(state, {$merge: { userId, userName, loggedIn: true }});
   },
   [LOGIN_FAILED]: (state) => {
-    return update(state, { userId: undefined, userName: undefined, loggedIn: false });
+    return update(state, {$merge: { userId: undefined, userName: undefined, loggedIn: false }});
   },
 }, {});

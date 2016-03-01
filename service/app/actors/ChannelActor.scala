@@ -1,7 +1,7 @@
 package actors
 
 import akka.actor._
-import model.{MessageHistory, PublishMessage, ChannelSet, PostedMessage}
+import model._
 import play.api.Play
 import play.api.Play.current
 import play.libs.Akka
@@ -25,11 +25,21 @@ class ChannelActor(id: String) extends Actor with ActorLogging {
     case RequestMessageHistory(_) =>
       log.debug("Sending history {} to {}", messageHistory, sender)
       sender ! MessageHistory(id, messageHistory.toSeq)
-    case message @ PostMessage(_, _, _) =>
+    case message @ PostMessage(channelId, sender, clientMessageId, text, timestamp) =>
       val id = idGenerator.next()
-      val publishMsg: PublishMessage = PublishMessage(id, message)
-      messageHistory = messageHistory :+ publishMsg
+      val publishMsg: PublishMessage = PublishMessage(channelId, id, sender, clientMessageId, text, timestamp)
+      messageHistory :+= publishMsg
       subscribers.foreach(_ ! publishMsg)
+    case message @ UpdateMessage(_, messageId, text) =>
+      val index = messageHistory.indexWhere(_.messageId == messageId)
+      if (index >= 0) {
+        val oldMessage = messageHistory(index)
+        messageHistory = messageHistory.updated(index, oldMessage.copy(text = text, edited = true))
+        subscribers.foreach(_ ! message)
+      }
+    case message @ DeleteMessage(_, messageId) =>
+      messageHistory = messageHistory.filterNot(_.messageId == messageId)
+      subscribers.foreach(_ ! message)
     case Terminated(subscriber) =>
       subscribers -= subscriber
   }
@@ -87,7 +97,11 @@ class ChannelsActor extends Actor with ActorLogging {
       }
       val channels = ChannelSet(channelsById.values.toSet)
       subscribers.foreach(_ ! channels)
-    case message @ PostMessage(_, PostedMessage(_, channelId, _), _) =>
+    case message @ PostMessage(channelId, _, _, _, _) =>
+      context.child(channelId).foreach(_ ! message)
+    case message @ UpdateMessage(channelId, _, _) =>
+      context.child(channelId).foreach(_ ! message)
+    case message @ DeleteMessage(channelId, _) =>
       context.child(channelId).foreach(_ ! message)
     case Terminated(subscriber) =>
       subscribers -= subscriber
