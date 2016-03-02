@@ -7,7 +7,7 @@ import ThemeManager from 'material-ui/lib/styles/theme-manager';
 import { websocketService } from '../service/websocketService';
 import ScalackTheme from './ScalackTheme';
 import Header from '../component/Header';
-import ChannelList from '../component/ChannelList';
+import ChannelMenu from '../component/ChannelMenu';
 import Footer from '../component/Footer';
 import * as actions from '../action';
 import { gotoUrl } from '../util/navigation';
@@ -63,7 +63,7 @@ class App extends Component {
         <Header {...this.props} />
         <div className="container-fluid">
           <div className="row">
-            <ChannelList
+            <ChannelMenu
               handleNav={this.handleNav}
               history={history}
               channels={channels}

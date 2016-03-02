@@ -4,7 +4,7 @@ import { List, ListItem, FontIcon } from 'material-ui/lib';
 import Colors from 'material-ui/lib/styles/colors';
 import classnames from 'classnames';
 
-class ChannelList extends Component {
+class ChannelMenu extends Component {
   constructor(props:any) {
     super(props);
     this.getSelectedIndex = this.getSelectedIndex.bind(this);
@@ -59,7 +59,8 @@ class ChannelList extends Component {
       );
     });
     return (
-      <div className="col-lg-3 ChannelList">
+      <div className="col-lg-3 ChannelMenu
+    ">
         <List style={listStyle}>
           {items}
         </List>
@@ -68,11 +69,11 @@ class ChannelList extends Component {
   }
 }
 
-ChannelList.propTypes = {
+ChannelMenu.propTypes = {
   channels: PropTypes.array,
   handleNav: PropTypes.func.isRequired,
   history: PropTypes.object.isRequired,
   unread: PropTypes.object.isRequired,
 };
 
-export default ChannelList;
+export default ChannelMenu;

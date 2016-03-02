@@ -7,13 +7,17 @@ import {
   LOGIN_FAILED,
 } from '../constants/ActionTypes';
 
+const loginSuccessful = (state: LoginDetails, action: any) => {
+  const { userId, userName } = action.payload;
+  return update(state, {$merge: { userId, userName, loggedIn: true }});
+};
+
+const loginFailed = (state) => {
+  return update(state, {$merge: { userId: undefined, userName: undefined, loggedIn: false }});
+};
+
 /* $FlowFixMe - computed keys not supported by flow yet */
 export const authReducer = handleActions({
-  [LOGIN_SUCCESSFUL]: (state: LoginDetails, action: any) => {
-    const { userId, userName } = action.payload;
-    return update(state, {$merge: { userId, userName, loggedIn: true }});
-  },
-  [LOGIN_FAILED]: (state) => {
-    return update(state, {$merge: { userId: undefined, userName: undefined, loggedIn: false }});
-  },
+  [LOGIN_SUCCESSFUL]: loginSuccessful,
+  [LOGIN_FAILED]: loginFailed,
 }, {});
