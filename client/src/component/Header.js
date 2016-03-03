@@ -18,7 +18,7 @@ const propTypes = {
 
 class Header extends Component {
 
-  constructor(props) {
+  constructor(props:any) {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleLogin = this.handleLogin.bind(this);
@@ -27,19 +27,19 @@ class Header extends Component {
     };
   }
 
-  handleChange(event) {
+  handleChange(event: any) {
     const userName = event.target.value;
     this.setState({ userName });
   }
 
-  handleLogin(event) {
+  handleLogin(event: any) {
     const userName = event.target.value;
     const password = 'pass123';
     this.props.login(userName, password);
     this.setState({ userName: ''});
   }
 
-  render() {
+  render():any {
     const { userName, loggedIn } = this.props;
     const leftIcon = (
       <IconButton>

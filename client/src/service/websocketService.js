@@ -1,7 +1,7 @@
 /* @flow  */
 import { log } from '../util';
 import config from 'config';
-import type { WebsocketService} from '../typ/services';
+import type { WebsocketService } from '../type/services';
 
 function websocketServiceCreator(): WebsocketService {
   const pendingActions = [];

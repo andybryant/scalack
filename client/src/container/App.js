@@ -15,7 +15,7 @@ import { appSelector } from '../selector';
 import thunkCreator from '../service/serviceThunkCreator';
 
 class App extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.handleDismissClick = this.handleDismissClick.bind(this);
     this.handleNav = this.handleNav.bind(this);
@@ -56,7 +56,7 @@ class App extends Component {
     );
   }
 
-  render() {
+  render(): any {
     const { children, history, channels, unread } = this.props;
     return (
       <div className="App">

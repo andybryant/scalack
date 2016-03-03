@@ -8,7 +8,7 @@ const propTypes = {
 };
 
 class MessageList extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
   }
 
@@ -20,7 +20,7 @@ class MessageList extends Component {
     }
   }
 
-  render() {
+  render(): any {
     const { channelMessages: { messages } } = this.props;
     let lastSender;
     const msg = messages.map(message => {

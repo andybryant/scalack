@@ -11,7 +11,7 @@ const propTypes = {
   channelId: PropTypes.string.isRequired,
   messageId: PropTypes.string.isRequired,
   userId: PropTypes.string.isRequired,
-  edited: PropTypes.bool.isRequired,
+  edited: PropTypes.bool,
   senderId: PropTypes.string.isRequired,
   text: PropTypes.string.isRequired,
   timestamp: PropTypes.number,
@@ -22,7 +22,7 @@ const propTypes = {
 };
 
 class MessageView extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.handleEdit = this.handleEdit.bind(this);
     this.handleDelete = this.handleDelete.bind(this);

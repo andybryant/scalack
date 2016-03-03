@@ -21,7 +21,7 @@ class ChannelMenu extends Component {
     }
   }
 
-  render() {
+  render(): any {
     const { handleNav, channels, unread } = this.props;
     const listStyle = {
       backgroundColor: Colors.lightBlueA100,

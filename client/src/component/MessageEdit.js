@@ -16,7 +16,7 @@ const propTypes = {
 };
 
 class MessageEdit extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     const { text } = this.props;
     this.state = {
@@ -57,7 +57,7 @@ class MessageEdit extends Component {
   }
 
 
-  handleChange(event) {
+  handleChange(event:any) {
     const message = event.target.value;
     this.setState({ message });
   }

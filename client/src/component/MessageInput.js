@@ -1,6 +1,7 @@
 /* @flow  */
 import React, { Component, PropTypes } from 'react';
 import { TextField } from 'material-ui/lib';
+import * as Mousetrap from 'mousetrap';
 
 const propTypes = {
   params: PropTypes.object.isRequired,
@@ -9,7 +10,7 @@ const propTypes = {
 };
 
 class MessageInput extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.focusOnInput = this.focusOnInput.bind(this);
@@ -18,9 +19,15 @@ class MessageInput extends Component {
     this.state = {
       message: '',
     };
+    this.mousetrap = new Mousetrap.default(); // eslint-disable-line new-cap
   }
 
-  onKeyDown(evt:any) {
+  componentWillMount() {
+    this.mousetrap
+      .bind('/', () => { this.focusOnInput(); return false; });
+  }
+
+  onKeyDown(evt: any) {
     if (evt.keyCode === 38 ) { // up
       if (!this.state.message) {
         evt.preventDefault();
@@ -37,18 +44,18 @@ class MessageInput extends Component {
     this.refs.messageField.focus();
   }
 
-  handleChange(event) {
+  handleChange(event: any) {
     const message = event.target.value;
     this.setState({ message });
   }
 
-  handleSendMessage(event) {
+  handleSendMessage(event: any) {
     const { postMessage, params: { channelId } } = this.props;
     postMessage(channelId, event.target.value);
     this.setState({ message: ''});
   }
 
-  render() {
+  render(): any {
     return (
       <TextField
         className="message-input"

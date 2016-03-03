@@ -17,7 +17,7 @@ const propTypes = {
 };
 
 class ChannelPage extends Component {
-  constructor(props) {
+  constructor(props: any) {
     super(props);
     this.handleEditLastMessage = this.handleEditLastMessage.bind(this);
     this.mousetrap = new Mousetrap.default(); // eslint-disable-line new-cap
@@ -37,7 +37,7 @@ class ChannelPage extends Component {
     }
   }
 
-  render() {
+  render(): any {
     const { channels, params: { channelId } } = this.props;
     const channel = channels.find(ch => ch.id === channelId);
     return (
