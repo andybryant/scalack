@@ -36,7 +36,7 @@ package websocket {
     when(Initial) {
       case Event(msg: JsObject, Unauthenticated) =>
         val msgType: String = (msg \ "type").as[String]
-        log.info("Received client message in Initial {}", msg)
+        log.debug("Received client message in Initial {}", msg)
         if (msgType == "login" ) {
           val payload = (msg \ "payload").validate[Login]
           withPayload(payload) {login =>
@@ -56,7 +56,7 @@ package websocket {
 
     when(Authenticated) {
       case Event(msg: JsObject, UserDetails(userRef, userId, _)) =>
-        log.info("Received client message in Authenticated {}", msg)
+        log.debug("Received client message in Authenticated {}", msg)
         val msgType: String = (msg \ "type").as[String]
         msgType match {
           case "channels" =>
@@ -119,7 +119,7 @@ package websocket {
     }
 
     def send(payload: JsValue): Unit = {
-      log.info("Sending {}", payload)
+      log.debug("Sending {}", payload)
       out ! payload
     }
 

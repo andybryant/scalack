@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Notification Test</title>
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no, maximum-scale=1.0, user-scalable=no">
+  <link href='https://fonts.googleapis.com/css?family=Roboto:400,700' rel='stylesheet' type='text/css'>  
+</head>
+<body>
+  <div id="app">Testing 123</div>
+
+  <form>
+    <input id="title" type="text" placeholder="Title" />
+    <input id="options" type="text" placeholder="options" />
+    <input id="sendNotification" type="submit">Send</input>
+  </form>
+  <script type="text/javascript">
+    Notification.requestPermission();
+
+
+    document.getElementById("sendNotification").onclick = function(event) {
+      event.preventDefault();
+      var title = document.getElementById("title").value;
+      var options = JSON.parse(document.getElementById("options").value);
+      new Notification(title, options);
+    }
+  </script>
+</body>
+</html>

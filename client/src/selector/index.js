@@ -36,18 +36,24 @@ function addChannelNames(channels, auth, contacts) {
 
 function enrichMessages(channelMessages, contacts, router) {
   const { params: { channelId } } = router;
-  const { unread, messages } = channelMessages[channelId];
-  const contactMap = toIdentityMap(contacts);
-  const enrichedMessages = messages.map(message => {
-    const contact = contactMap[message.senderId];
-    return ({
-      ...message,
-      sender: contact ? contact.name : 'Unknown',
+  if (channelMessages.hasOwnProperty(channelId)) {
+    const { unread, messages } = channelMessages[channelId];
+    const contactMap = toIdentityMap(contacts);
+    const enrichedMessages = messages.map(message => {
+      const contact = contactMap[message.senderId];
+      return ({
+        ...message,
+        sender: contact ? contact.name : 'Unknown',
+      });
     });
-  });
+    return {
+      unread,
+      messages: enrichedMessages,
+    };
+  }
   return {
-    unread,
-    messages: enrichedMessages,
+    unread: 0,
+    messages: [],
   };
 }
 
@@ -87,5 +93,16 @@ export const channelSelector = createSelector(
     ...nav,
     router,
     channels: addChannelNames(entities.channels, auth, entities.contacts),
+  })
+);
+
+export const notificationSelector = createSelector(
+  entitiesSelector,
+  authSelector,
+  routerSelector,
+  (entities, auth) => ({
+    channelMessages: entities.messages,
+    channels: toIdentityMap(addChannelNames(entities.channels, auth, entities.contacts)),
+    userId: auth.userId,
   })
 );
