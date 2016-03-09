@@ -19,6 +19,8 @@ class JsonSerializer {
         )
       case LoginFailed =>
         Json.obj("type" -> "loginFailed")
+      case LogoutSuccessful =>
+        Json.obj("type" -> "logoutSuccessful")
       case ChannelSet(channels) =>
         Json.obj(
           "type" -> "channels",

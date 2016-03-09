@@ -16,13 +16,13 @@ class ChannelActor(id: String) extends Actor with ActorLogging {
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
 
   def receive = {
-    case message @ SubscribeChannel(_) =>
+    case message: SubscribeChannel =>
       context.watch(sender)
       subscribers += sender
-    case message @ UnsubscribeChannel(_) =>
+    case message: UnsubscribeChannel =>
       context.unwatch(sender)
       subscribers -= sender
-    case RequestMessageHistory(_) =>
+    case message: RequestMessageHistory =>
       log.debug("Sending history {} to {}", messageHistory, sender)
       sender ! MessageHistory(id, messageHistory.toSeq)
     case message @ PostMessage(channelId, sender, clientMessageId, text, timestamp) =>

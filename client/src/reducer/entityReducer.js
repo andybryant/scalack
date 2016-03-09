@@ -9,8 +9,10 @@ import {
   UPDATE_MESSAGE,
   DELETE_MESSAGE,
   MESSAGE_HISTORY,
+  LOGOUT_SUCCESSFUL,
 } from '../constants/ActionTypes';
 import { ROUTER_DID_CHANGE } from 'redux-router/lib/constants';
+import initialState from '../data/initial';
 
 const DEFAULT_MESSAGES: ChannelMessages = {
   unread: 0,
@@ -91,6 +93,10 @@ const routerChange = (state: Entities, action: any) => {
   return state;
 };
 
+const clearAll = () => {
+  return Object.assign({}, initialState.entities);
+};
+
 export const entityReducer = handleActions({
   // $FlowFixMe - computed keys not supported by flow yet
   [CHANNEL_SET]: updateChannels,
@@ -100,4 +106,5 @@ export const entityReducer = handleActions({
   [DELETE_MESSAGE]: deleteMessage,
   [MESSAGE_HISTORY]: messageHistory,
   [ROUTER_DID_CHANGE]: routerChange,
+  [LOGOUT_SUCCESSFUL]: clearAll,
 }, {});

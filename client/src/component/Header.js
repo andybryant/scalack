@@ -6,41 +6,23 @@ import {
   IconButton,
   IconMenu,
   MenuItem,
-  TextField,
 } from 'material-ui/lib';
 import Colors from 'material-ui/lib/styles/colors';
 
 const propTypes = {
-  login: PropTypes.func.isRequired,
   userName: PropTypes.string,
   loggedIn: PropTypes.bool,
+  logout: PropTypes.func.isRequired,
 };
 
 class Header extends Component {
 
   constructor(props:any) {
     super(props);
-    this.handleChange = this.handleChange.bind(this);
-    this.handleLogin = this.handleLogin.bind(this);
-    this.state = {
-      userName: '',
-    };
-  }
-
-  handleChange(event: any) {
-    const userName = event.target.value;
-    this.setState({ userName });
-  }
-
-  handleLogin(event: any) {
-    const userName = event.target.value;
-    const password = 'pass123';
-    this.props.login(userName, password);
-    this.setState({ userName: ''});
   }
 
   render():any {
-    const { userName, loggedIn } = this.props;
+    const { userName, loggedIn, logout } = this.props;
     const leftIcon = (
       <IconButton>
         <FontIcon className="material-icons">chat</FontIcon>
@@ -56,16 +38,9 @@ class Header extends Component {
             targetOrigin={{horizontal: 'right', vertical: 'top'}}
             anchorOrigin={{horizontal: 'right', vertical: 'top'}}
           >
-            <MenuItem primaryText="Sign out" />
+            <MenuItem primaryText="Sign out" onTouchTap={logout} />
           </IconMenu>
-        </div> ) : (
-      <TextField ref="userField"
-        hintText="Username"
-        onChange={this.handleChange}
-        value={this.state.userName}
-        onEnterKeyDown={this.handleLogin}
-        />
-    );
+        </div> ) : null;
     return (
       <AppBar
         className="Header"

@@ -59,28 +59,36 @@ package websocket {
         log.debug("Received client message in Authenticated {}", msg)
         val msgType: String = (msg \ "type").as[String]
         msgType match {
+          case "logout" =>
+            userRef ! Logout
+            send(LogoutSuccessful)
+            goto(Initial) using Unauthenticated
           case "channels" =>
             userRef ! SubscribeChannelList
+            stay
           case "users" =>
             UsersActor.usersActor ! SubscribeUserList
+            stay
           case "postMessage" =>
             val payload = (msg \ "payload").validate[PostedMessage]
             withPayload(payload) { msg =>
               val PostedMessage(channelId, clientMessageId, text) = msg
               ChannelsActor.channelsActor ! PostMessage(channelId, Sender(self, userId), clientMessageId, text)
             }
+            stay
           case "updateMessage" =>
             val payload = (msg \ "payload").validate[UpdateMessage]
             withPayload(payload) {
               ChannelsActor.channelsActor ! _
             }
+            stay
           case "deleteMessage" =>
             val payload = (msg \ "payload").validate[DeleteMessage]
             withPayload(payload) {
               ChannelsActor.channelsActor ! _
             }
+            stay
         }
-        stay
       case Event(usersMsg @ UserSet(_), _) =>
         send(usersMsg)
         stay
@@ -94,16 +102,16 @@ package websocket {
         }
         send(channelsMsg)
         stay using UserDetails(userRef, userId, Some(channels))
-      case Event(msg @ MessageHistory(_, _), _) =>
+      case Event(msg: MessageHistory, _) =>
         send(msg)
         stay
-      case Event(msg @ PublishMessage(_, _, _, _, _, _, _), _) =>
+      case Event(msg: PublishMessage, _) =>
         send(msg)
         stay
-      case Event(msg @ UpdateMessage(_, _, _), _) =>
+      case Event(msg: UpdateMessage, _) =>
         send(msg)
         stay
-      case Event(msg @ DeleteMessage(_, _), _) =>
+      case Event(msg: DeleteMessage, _) =>
         send(msg)
         stay
       case unknown =>

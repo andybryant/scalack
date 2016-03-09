@@ -2,6 +2,7 @@
 import React, { Component, PropTypes } from 'react';
 import ReactDOM from 'react-dom';
 import Message from '../component/Message';
+import moment from 'moment';
 
 const propTypes = {
   channelMessages: PropTypes.object.isRequired,
@@ -23,20 +24,29 @@ class MessageList extends Component {
   render(): any {
     const { channelMessages: { messages } } = this.props;
     let lastSender;
-    const msg = messages.map(message => {
+    let lastDate;
+    const msgs = messages.map(message => {
+      const sameDay = lastDate && moment(message.timestamp).isSame(lastDate, 'day');
       const sameSender = message.sender === lastSender;
+      const header = sameDay ? null : (
+        <div className="header">{ moment(message.timestamp).format('dddd, MMMM Do YYYY') }</div>
+      );
       lastSender = message.sender;
+      lastDate = message.timestamp;
       return (
-        <Message
-          sameSender={sameSender}
-          {...message}
-          {...this.props}
-          />
+        <div>
+          {header}
+          <Message
+            sameSender={sameSender}
+            {...message}
+            {...this.props}
+            />
+        </div>
       );
     });
     return (
       <div className="MessageList" ref="messages">
-        {msg}
+        {msgs}
       </div>
     );
   }

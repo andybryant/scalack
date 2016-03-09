@@ -14,16 +14,18 @@ package user {
 
 
     when(Initial) {
-      case Event(Login(_, _), Uninitialized) =>
+      case Event(l: Login, Uninitialized) =>
         stash
         goto(Active) using ActiveData(Set.empty, None)
     }
 
     when (Active) {
-      case Event(Login(userName,_), data @ ActiveData(_, _)) =>
+      case Event(l: Login, data: ActiveData) =>
         context.watch(sender)
         sender ! LoginSuccessful(self, userId, userName)
         stay
+      case Event(Logout, data @ ActiveData(sessions, _)) =>
+        stay using data.copy(sessions = sessions - sender())
       case Event(Terminated(ref), data @ ActiveData(sessions, _)) =>
         stay using data.copy(sessions = sessions - ref)
       case Event(SubscribeChannelList, data @ ActiveData(sessions, maybeChannels)) =>
@@ -46,13 +48,13 @@ package user {
         val channelMsg = ChannelSet(filteredChannels)
         sessions.foreach(_ ! channelMsg)
         stay using ActiveData(sessions, Some(filteredChannels))
-      case Event(msg @ PublishMessage(_, _, _, _, _, _, _), ActiveData(sessions, _)) =>
+      case Event(msg: PublishMessage, ActiveData(sessions, _)) =>
         sessions.foreach(_ ! msg)
         stay
-      case Event(msg @ UpdateMessage(_, _, _), ActiveData(sessions, _)) =>
+      case Event(msg: UpdateMessage, ActiveData(sessions, _)) =>
         sessions.foreach(_ ! msg)
         stay
-      case Event(msg @ DeleteMessage(_, _), ActiveData(sessions, _)) =>
+      case Event(msg: DeleteMessage, ActiveData(sessions, _)) =>
         sessions.foreach(_ ! msg)
         stay
     }
@@ -82,6 +84,7 @@ package user {
   class UsersActor extends Actor with ActorLogging {
     val idGenerator = IdGenerator.create("User")
     var userNameToId: Map[String, String] = Map.empty
+    var userNameToPassword: Map[String, String] = Map.empty
     var userListSubscribers: Set[ActorRef] = Set.empty
 
     def userSet = {
@@ -89,23 +92,29 @@ package user {
     }
 
     override def receive = {
-      case message @ Login(userName, _) =>
-        val id = if (userNameToId.contains(userName)) {
-          userNameToId(userName)
+      case message @ Login(userName, password) =>
+        val alreadyLoggedIn = userNameToId.contains(userName)
+        if (alreadyLoggedIn && userNameToPassword(userName) != password) {
+          sender ! LoginFailed
         } else {
-          idGenerator.next()
-        }
-        context.child(id).getOrElse {
-          log.info("Adding new user id={} name={}", id, userName)
-          val child = context.actorOf(Props(new UserActor(id, userName)), id)
-          val userIdSets = userNameToId.values.map {
-            (otherUserId) => Set(id, otherUserId)
+          val id = if (alreadyLoggedIn) {
+            userNameToId(userName)
+          } else {
+            idGenerator.next()
           }
-          ChannelsActor.channelsActor ! CreatePrivateChannels(userIdSets)
-          userNameToId += (userName -> id)
-          userListSubscribers.foreach(_ ! userSet)
-          child
-        } forward message
+          context.child(id).getOrElse {
+            log.info("Adding new user id={} name={}", id, userName)
+            val child = context.actorOf(Props(new UserActor(id, userName)), id)
+            val userIdSets = userNameToId.values.map {
+              (otherUserId) => Set(id, otherUserId)
+            }
+            ChannelsActor.channelsActor ! CreatePrivateChannels(userIdSets)
+            userNameToId += (userName -> id)
+            userNameToPassword += (userName -> password)
+            userListSubscribers.foreach(_ ! userSet)
+            child
+          } forward message
+        }
       case SubscribeUserList =>
         userListSubscribers += sender
         sender ! userSet

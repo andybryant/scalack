@@ -1,3 +1,10 @@
 .MessageList {
-  overflow-y: auto;  
+  overflow-y: auto;
+
+  .header {
+    text-align: center;
+    color: $red700;
+    font-size: 12px;
+  }
+
 }

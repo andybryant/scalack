@@ -5,6 +5,7 @@ import update from 'react-addons-update';
 import {
   LOGIN_SUCCESSFUL,
   LOGIN_FAILED,
+  LOGOUT_SUCCESSFUL,
 } from '../constants/ActionTypes';
 
 const loginSuccessful = (state: LoginDetails, action: any) => {
@@ -12,12 +13,13 @@ const loginSuccessful = (state: LoginDetails, action: any) => {
   return update(state, {$merge: { userId, userName, loggedIn: true }});
 };
 
-const loginFailed = (state) => {
+const clearUser = (state: LoginDetails) => {
   return update(state, {$merge: { userId: undefined, userName: undefined, loggedIn: false }});
 };
 
 /* $FlowFixMe - computed keys not supported by flow yet */
 export const authReducer = handleActions({
   [LOGIN_SUCCESSFUL]: loginSuccessful,
-  [LOGIN_FAILED]: loginFailed,
+  [LOGIN_FAILED]: clearUser,
+  [LOGOUT_SUCCESSFUL]: clearUser,
 }, {});

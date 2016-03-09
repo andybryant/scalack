@@ -40,13 +40,13 @@ class ChannelPage extends Component {
   render(): any {
     const { channels, params: { channelId } } = this.props;
     const channel = channels.find(ch => ch.id === channelId);
-    return (
+    return channel ? (
       <div className="ChannelPage container">
         <div className="title">{channel.name ? channel.name : 'Private'}</div>
         <MessageList {...this.props} />
         <MessageInput editLastMessage={this.handleEditLastMessage} {...this.props}/>
       </div>
-    );
+    ) : null;
   }
 }
 

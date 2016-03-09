@@ -1,6 +1,7 @@
 /* @flow  */
 import { log } from '../util';
 import { createAction } from 'redux-actions';
+import * as types from '../constants/ActionTypes';
 
 const defaultMeta = {
   local: false,
@@ -15,20 +16,19 @@ export default function thunkCreator(dispatch: any): any {
     log.debug('Received', action);
     const type = action.type;
     switch (type) {
-    case 'loginSuccessful':
-      send({type: 'channels'});
-      send({type: 'users'});
+    case types.LOGIN_SUCCESSFUL:
+      send({type: types.CHANNEL_SET});
+      send({type: types.USER_SET});
       dispatch(action);
       break;
-    case 'loginFailed':
-      dispatch(action);
-      break;
-    case 'channels':
-    case 'users':
-    case 'messageHistory':
-    case 'publishMessage':
-    case 'updateMessage':
-    case 'deleteMessage':
+    case types.LOGIN_FAILED:
+    case types.LOGOUT_SUCCESSFUL:
+    case types.CHANNEL_SET:
+    case types.USER_SET:
+    case types.MESSAGE_HISTORY:
+    case types.PUBLISH_MESSAGE:
+    case types.UPDATE_MESSAGE:
+    case types.DELETE_MESSAGE:
       dispatch(action);
       break;
     default:

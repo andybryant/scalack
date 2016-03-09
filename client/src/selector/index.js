@@ -7,6 +7,7 @@ import channelCompare from '../model/channelCompare';
 const authSelector: (state: State) => LoginDetails = state => state.auth;
 const entitiesSelector: (state: State) => Entities = state => state.entities;
 const routerSelector: (state: State) => Entities = state => state.router;
+const errorMessageSelector: (state: State) => Entities = state => state.errorMessage;
 
 function toIdentityMap(entities) {
   const map = {};
@@ -72,12 +73,14 @@ export const appSelector = createSelector(
   entitiesSelector,
   authSelector,
   routerSelector,
-  (entities, auth, router) => ({
+  errorMessageSelector,
+  (entities, auth, router, errorMessage) => ({
     unread: calcUnread(entities.messages, router),
     ...entities,
     ...auth,
     ...nav,
     router,
+    errorMessage,
     channels: addChannelNames(entities.channels, auth, entities.contacts),
   })
 );

@@ -6,6 +6,8 @@ import akka.actor.ActorRef
 sealed trait ClientPayloadIn
 
 case class Login(userName: String, password: String) extends ClientPayloadIn
+case object Logout extends ClientPayloadIn
+
 /**
   * Chat message received from client.
   *
@@ -30,6 +32,7 @@ sealed trait ClientPayloadOut
 
 case class LoginSuccessful(userRef: ActorRef, userId: String, userName: String) extends ClientPayloadOut
 case object LoginFailed extends ClientPayloadOut
+case object LogoutSuccessful extends ClientPayloadOut
 case class ChannelSet(channels: Set[Channel]) extends ClientPayloadOut
 case class UserSet(users: Set[User]) extends ClientPayloadOut
 case class MessageHistory(channelId: String, history: Seq[PublishMessage]) extends ClientPayloadOut

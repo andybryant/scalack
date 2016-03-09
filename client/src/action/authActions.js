@@ -6,9 +6,15 @@ const defaultServerMeta = { toServer: true, ...defaultMeta };
 
 export const login = createAction(
   types.LOGIN,
-  (userName) => ({
+  (userName, password) => ({
     userName,
-    password: 'pass1234',
+    password,
   }),
+  () => defaultServerMeta
+);
+
+export const logout = createAction(
+  types.LOGOUT,
+  () => ({}),
   () => defaultServerMeta
 );
