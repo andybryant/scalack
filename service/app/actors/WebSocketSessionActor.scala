@@ -1,12 +1,11 @@
 package actors
 
-import akka.actor.{FSM, Actor, ActorRef, Props}
-import model.PostedMessage
+import akka.actor.{Actor, ActorRef, FSM, Props}
 import play.api.libs.json._
 
 package websocket {
 
-  import actors.user.{ActiveData, UsersActor}
+  import actors.user.UsersActor
   import model._
   import utils.JsonSerializer
 
@@ -93,13 +92,9 @@ package websocket {
         send(usersMsg)
         stay
       case Event(channelsMsg @ ChannelSet(channels), data @ UserDetails(userRef, userId, maybeOldChannels)) =>
-        maybeOldChannels match {
-          case Some(oldChannels) =>
-            val newChannels = channels.diff(oldChannels)
-            newChannels.foreach(ChannelsActor.channelsActor ! RequestMessageHistory(_))
-          case None =>
-            channels.foreach(ChannelsActor.channelsActor ! RequestMessageHistory(_))
-        }
+        val oldChannels = maybeOldChannels.getOrElse(Set.empty[Channel])
+        val newChannels = channels.diff(oldChannels)
+        newChannels.foreach(ChannelsActor.channelsActor ! RequestMessageHistory(_))
         send(channelsMsg)
         stay using UserDetails(userRef, userId, Some(channels))
       case Event(msg: MessageHistory, _) =>
