@@ -1,7 +1,8 @@
 package actors
 
+import actors.ChannelActor._
 import akka.actor._
-import model._
+import model.ClientPayload._
 import play.api.Play
 import play.api.Play.current
 import play.libs.Akka
@@ -10,7 +11,24 @@ import utils.IdGenerator
 import scala.collection.JavaConversions._
 import scala.collection.immutable.{HashSet, Queue}
 
-class ChannelActor(id: String) extends Actor with ActorLogging {
+object ChannelActor {
+  sealed trait Channel {
+    val channelId: ChannelId
+  }
+  case class PublicChannel(channelId: ChannelId, name: String) extends Channel
+  case class PrivateChannel(channelId: ChannelId, exclusiveUserIds: Set[UserId]) extends Channel
+
+
+  case class RequestMessageHistory(channel: Channel)
+  case class SubscribeChannel(channel: Channel)
+  case class UnsubscribeChannel(channel: Channel)
+  case object SubscribeChannelList
+  case class SubscribeChannels(channels: Set[Channel])
+  case class CreatePrivateChannels(exclusiveUserIdsIterator: Iterable[Set[UserId]])
+
+}
+
+class ChannelActor(id: ChannelId) extends Actor with ActorLogging {
   val idGenerator = IdGenerator.create("Msg")
   var messageHistory: Queue[PublishMessage] = Queue.empty[PublishMessage]
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
@@ -52,13 +70,13 @@ object ChannelsActor {
 class ChannelsActor extends Actor with ActorLogging {
   val idGenerator = IdGenerator.create("Channel")
   var subscribers: HashSet[ActorRef] = HashSet.empty[ActorRef]
-  var channelsById: Map[String, Channel] = Map.empty
+  var channelsById: Map[ChannelId, Channel] = Map.empty
 
   {
     val defaultChannels = Play.application.configuration.getStringList("default.channels")
       .map(_.toList).getOrElse(List.empty)
     defaultChannels.foreach {channelName =>
-      val id: String = idGenerator.next()
+      val id: ChannelId = idGenerator.next()
       val channel = PublicChannel(id, channelName)
       channelsById += (id -> channel)
       log.info("Adding default channel {}", channel)
@@ -89,7 +107,7 @@ class ChannelsActor extends Actor with ActorLogging {
     case CreatePrivateChannels(userIdsIterable) =>
       userIdsIterable.foreach{
         userIds => {
-          val id: String = idGenerator.next()
+          val id: ChannelId = idGenerator.next()
           val channel = PrivateChannel(id, userIds)
           context.actorOf(Props(new ChannelActor(id)), id)
           channelsById += (channel.channelId -> channel)
@@ -111,16 +129,3 @@ class ChannelsActor extends Actor with ActorLogging {
 
 
 
-sealed trait Channel {
-  val channelId: String
-}
-case class PublicChannel(channelId: String, name: String) extends Channel
-case class PrivateChannel(channelId: String, exclusiveUserIds: Set[String]) extends Channel
-
-
-case class RequestMessageHistory(channel: Channel)
-case class SubscribeChannel(channel: Channel)
-case class UnsubscribeChannel(channel: Channel)
-case object SubscribeChannelList
-case class SubscribeChannels(channels: Set[Channel])
-case class CreatePrivateChannels(exclusiveUserIdsIterator: Iterable[Set[String]])

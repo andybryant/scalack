@@ -5,8 +5,24 @@ import play.libs.Akka
 
 package user {
 
-  import model._
+  import actors.ChannelActor._
+  import actors.user.UserActor._
+  import model.ClientPayload._
   import utils.IdGenerator
+
+  object UserActor {
+    case object SubscribeUserList
+    case class User(id: UserId, name: String)
+
+    sealed trait UserState
+    case object Initial extends UserState
+    case object Active extends UserState
+
+    sealed trait UserData
+    case object Uninitialized extends UserData
+    case class ActiveData(sessions: Set[ActorRef], channels: Option[Set[Channel]]) extends UserData
+  }
+
 
   class UserActor(userId: String, userName: String) extends FSM[UserState, UserData] with Stash {
 
@@ -69,13 +85,6 @@ package user {
 
   }
 
-  sealed trait UserState
-  case object Initial extends UserState
-  case object Active extends UserState
-
-  sealed trait UserData
-  case object Uninitialized extends UserData
-  case class ActiveData(sessions: Set[ActorRef], channels: Option[Set[Channel]]) extends UserData
 
   object UsersActor {
     lazy val usersActor: ActorRef = Akka.system.actorOf(Props(classOf[UsersActor]))
@@ -83,7 +92,7 @@ package user {
 
   class UsersActor extends Actor with ActorLogging {
     val idGenerator = IdGenerator.create("User")
-    var userNameToId: Map[String, String] = Map.empty
+    var userNameToId: Map[String, UserId] = Map.empty
     var userNameToPassword: Map[String, String] = Map.empty
     var userListSubscribers: Set[ActorRef] = Set.empty
 
@@ -126,6 +135,3 @@ package user {
 
 }
 
-
-case object SubscribeUserList
-case class User(id: String, name: String)
