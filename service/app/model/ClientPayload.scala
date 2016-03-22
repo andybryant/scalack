@@ -2,7 +2,7 @@ package model
 
 import actors.ChannelActor.Channel
 import actors.user.UserActor.User
-import actors.{Sender, User, Channel}
+import actors.Sender
 import akka.actor.ActorRef
 
 object ClientPayload {

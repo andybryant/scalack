@@ -1,8 +1,9 @@
 package utils
 
-import actors.{Sender, PostMessage, PrivateChannel, PublicChannel}
+import actors.ChannelActor.{PrivateChannel, PublicChannel}
+import actors.{Sender}
 import akka.actor.ActorRef
-import model._
+import model.ClientPayload._
 import play.api.libs.json.{JsString, JsArray, Json, JsValue}
 
 class JsonSerializer {

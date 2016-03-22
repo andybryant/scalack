@@ -5,8 +5,10 @@ import play.api.libs.json._
 
 package websocket {
 
+  import actors.ChannelActor.{RequestMessageHistory, Channel, SubscribeChannelList}
+  import actors.user.UserActor.SubscribeUserList
   import actors.user.UsersActor
-  import model._
+  import model.ClientPayload._
   import utils.JsonSerializer
 
   object WebSocketSessionActor {
