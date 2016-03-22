@@ -1,6 +1,6 @@
 # Scalack
-## Introd
-uction
+
+## Introduction
 
 Scalack is a web-based chat app created to get more familiar with Scala and Play along with the Scala API for Akka.
 
