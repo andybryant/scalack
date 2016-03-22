@@ -20,9 +20,14 @@ export type Entities = {
   messages: { [channelId:string]: ChannelMessages }
 };
 
+export type Presence = {
+  lastActivityMs: number,
+};
+
 export type State = {
   router: any,
   auth: LoginDetails,
   errorMessage: ?string,
   entities: Entities,
+  presence: Presence,
 };

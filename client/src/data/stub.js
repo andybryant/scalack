@@ -39,6 +39,9 @@ const initialState: State = {
       'Ch3': { unread: 0, messages: []},
     },
   },
+  presence: {
+    lastActivityMs: 0,
+  },
 };
 
 export default initialState;

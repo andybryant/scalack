@@ -1,5 +1,5 @@
 /* @flow  */
-import type { State, Entities, LoginDetails } from '../type/state';
+import type { State, Entities, LoginDetails, Presence } from '../type/state';
 import { createSelector } from 'reselect';
 import * as nav from '../util/navigation';
 import channelCompare from '../model/channelCompare';
@@ -7,7 +7,8 @@ import channelCompare from '../model/channelCompare';
 const authSelector: (state: State) => LoginDetails = state => state.auth;
 const entitiesSelector: (state: State) => Entities = state => state.entities;
 const routerSelector: (state: State) => Entities = state => state.router;
-const errorMessageSelector: (state: State) => Entities = state => state.errorMessage;
+const errorMessageSelector: (state: State) => ?string = state => state.errorMessage;
+const presenceSelector: (state: State) => Presence = state => state.presence;
 
 function toIdentityMap(entities) {
   const map = {};
@@ -102,10 +103,11 @@ export const channelSelector = createSelector(
 export const notificationSelector = createSelector(
   entitiesSelector,
   authSelector,
-  routerSelector,
-  (entities, auth) => ({
+  presenceSelector,
+  (entities, auth, presence) => ({
     channelMessages: entities.messages,
     channels: toIdentityMap(addChannelNames(entities.channels, auth, entities.contacts)),
     userId: auth.userId,
+    lastActivityMs: presence.lastActivityMs,
   })
 );

@@ -12,6 +12,9 @@ const initialState: State = {
     channels: [],
     messages: {},
   },
+  presence: {
+    lastActivityMs: 0,
+  },
   router: {
     location: {
       pathname: '/',
