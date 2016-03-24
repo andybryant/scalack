@@ -4,6 +4,8 @@
 
 Scalack is a web-based chat app created to get more familiar with Scala and Play along with the Scala API for Akka.
 
+![Screenshot](docs/screenshot.png)
+
 ## Architecture
 
 The backend is written in Scala and uses Akka and the Play framework. It communicates with an HTML5 single page app using websockets. The frontend was written in ES2015 and utilizes react and react-redux along with a number of other open source libraries.
