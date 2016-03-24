@@ -20,6 +20,8 @@ The following features are _included_ currently:
 1. Supports public channels and private messaging
 1. Messages support markdown format.
 1. Ability to edit or delete any message written by the current user.
+1. Unread message counts
+1. Native browser notifications for unread messages
 
 What features are _not included_ currently:
 
@@ -27,5 +29,3 @@ What features are _not included_ currently:
 1. Ability to select channels to subscribe to
 1. Ability to add or edit public channels
 1. Search
-
-TODO - include screenshot
