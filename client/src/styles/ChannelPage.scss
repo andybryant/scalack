@@ -1,6 +1,12 @@
 .ChannelPage {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  margin-left: 16px;
+  margin-top: 16px;
 
   .title {
+    flex: 0 1 auto;
     margin-top: 16px;
     margin-bottom: 16px;
     font-size: 24px;

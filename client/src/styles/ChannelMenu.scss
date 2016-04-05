@@ -1,6 +1,9 @@
 .ChannelMenu {
 	background-color: $lightBlueA100;
-  height: 90vh;
+  flex: 0 1 auto;
+  width: 280px;
+  min-height: 0px;
+  overflow-y: auto;
 
   .count {
     &.none {

@@ -1,6 +1,18 @@
 .App {
+  .main-container {
+    display: flex;
+    position: absolute;
+    top: 64px;
+    bottom: 0px;
+    left: 0px;
+    right: 0px;
+  }
+
   .main-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1 1 auto;
     background-color: $blue50;
-    height: 90vh;
+    min-height: 0px;
   }
 }

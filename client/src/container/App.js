@@ -80,19 +80,17 @@ class App extends Component {
     return (
       <div className="App">
         <Header {...this.props} />
-        <div className="container-fluid">
-          <div className="row">
-            <ChannelMenu
-              handleNav={this.handleNav}
-              history={history}
-              channels={channels}
-              unread={unread}
-              />
-            <div className="main-body col-lg-9">
-              {this.renderErrorMessage()}
-              {loggedIn ? children : <Login {...this.props} /> }
-              <Footer />
-            </div>
+        <div className="main-container">
+          <ChannelMenu
+            handleNav={this.handleNav}
+            history={history}
+            channels={channels}
+            unread={unread}
+            />
+          <div className="main-body">
+            {this.renderErrorMessage()}
+            {loggedIn ? children : <Login {...this.props} /> }
+            <Footer />
           </div>
         </div>
       </div>

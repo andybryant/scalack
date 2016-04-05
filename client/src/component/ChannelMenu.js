@@ -59,7 +59,7 @@ class ChannelMenu extends Component {
       );
     });
     return (
-      <div className="col-lg-3 ChannelMenu
+      <div className="col-md-3 ChannelMenu
     ">
         <List style={listStyle}>
           {items}
