@@ -114,9 +114,8 @@ package user {
           context.child(id).getOrElse {
             log.info("Adding new user id={} name={}", id, userName)
             val child = context.actorOf(Props(new UserActor(id, userName)), id)
-            val userIdSets = userNameToId.values.map {
-              (otherUserId) => Set(id, otherUserId)
-            }
+            val userIdSets = for (otherUserId <- userNameToId.values)
+              yield Set(id, otherUserId)
             ChannelsActor.channelsActor ! CreatePrivateChannels(userIdSets)
             userNameToId += (userName -> id)
             userNameToPassword += (userName -> password)
